@@ -32,7 +32,7 @@ var __hasProp = {}.hasOwnProperty,
       _results = [];
       for (key in _ref) {
         value = _ref[key];
-        _results.push(new Sidebar.PropRow(this, _.cid(), key, value));
+        _results.push(new PropRow(this, _.cid(), key, value));
       }
       return _results;
     };

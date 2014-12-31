@@ -14,7 +14,7 @@
 
 			_.extend @prop,
 				pointData:
-					name: 'Point data'
+					name: 'Point'
 					type: 'select'
 					value: null
 					set: () ->
@@ -31,6 +31,9 @@
 						self.prop.pointData.value = value
 						self.point.bind value
 						self.updateChildren()
+					# codeListener: (value, flag) ->
+					# 	self.point.prop.data.enableCode = flag
+					# 	self.point.prop.data.code = value
 
 				xAxis:
 					name: 'X axis'
@@ -88,7 +91,7 @@
 					listener: (value) ->
 						self.prop.height.value = value
 						self.updateChildren()
-			@setCode()
+			@setCode(['pointData'])
 
 			@updateChildren()
 			Primitives.tree.changeParent @xAxis, @id

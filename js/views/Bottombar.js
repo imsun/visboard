@@ -31,7 +31,7 @@ var __hasProp = {}.hasOwnProperty,
 
   })(View);
   this.addBottombar = function(editor) {
-    return new Bottombar(editor, _.cid(), 'Data Pool');
+    return new Bottombar(editor, _.cid());
   };
   return this.Bottombar = Bottombar;
 })();

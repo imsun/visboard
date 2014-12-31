@@ -92,9 +92,6 @@
 				if prop.listener? and not (prop.type in ['range', 'boolean'])
 					propValueEl.addEventListener event, () ->
 						prop.listener this.value
-				if prop.enableCode
-					propValueEl.style.display = 'none'
-					codeButton.style.float = 'left'
 
 			if prop.code?
 				codeButton = document.createElement 'button'
@@ -110,9 +107,13 @@
 						else
 							propValueEl.style.display = ' inline-block'
 							codeButton.style.float = 'right'
+						prop.codeListener code, flag if prop.codeListener?
 						Renderer.renderAll()
+				if prop.enableCode and propValueEl?
+					propValueEl.style.display = 'none'
+					codeButton.style.float = 'left'
 						
 				@domElement.appendChild codeButton
 					
-	@Sidebar.PropRow = PropRow
+	@PropRow = PropRow
 )()

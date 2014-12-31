@@ -21,7 +21,7 @@ var __hasProp = {}.hasOwnProperty,
       this.yAxis.prop.range.value = [10, 0];
       _.extend(this.prop, {
         pointData: {
-          name: 'Point data',
+          name: 'Point',
           type: 'select',
           value: null,
           set: function() {
@@ -133,7 +133,7 @@ var __hasProp = {}.hasOwnProperty,
           }
         }
       });
-      this.setCode();
+      this.setCode(['pointData']);
       this.updateChildren();
       Primitives.tree.changeParent(this.xAxis, this.id);
       Primitives.tree.changeParent(this.yAxis, this.id);

@@ -17,7 +17,7 @@
 			primitive = node.target
 
 			for key, value of primitive.prop
-				new Sidebar.PropRow @, _.cid(), key, value
+				new PropRow @, _.cid(), key, value
 
 	@Sidebar.PropPanel = PropPanel
 )()

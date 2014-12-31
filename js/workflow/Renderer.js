@@ -20,23 +20,27 @@
           children: []
         }
       };
-      Renderer._render('root', 'root', list);
+      Renderer._render('root', 'root', list, {
+        $data: null,
+        $index: null,
+        $parent: null
+      });
       Renderer.draw(Renderer.primitives);
       return Renderer.primitives;
     },
-    _render: function(id, pid, list) {
-      var child, temp, _i, _j, _len, _len1, _ref, _ref1, _results;
+    _render: function(id, pid, list, $parent) {
+      var child, children, _i, _j, _len, _len1, _ref, _ref1, _results;
       _ref = list[pid].children;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         child = _ref[_i];
-        temp = Renderer["eval"](child, list[child].target);
-        Renderer.primitives[id].children = Renderer.primitives[id].children.concat(temp);
+        children = Renderer["eval"](child, list[child].target, $parent);
+        Renderer.primitives[id].children = Renderer.primitives[id].children.concat(children);
       }
       _ref1 = Renderer.primitives[id].children;
       _results = [];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         child = _ref1[_j];
-        _results.push(Renderer._render(child.id, child.pid, list));
+        _results.push(Renderer._render(child.id, child.pid, list, child.dataRefer));
       }
       return _results;
     },
@@ -45,58 +49,67 @@
         return $('#viewport').innerHTML = '';
       }
     },
-    "eval": function(pid, primitive) {
-      var $domain, data, item, items, prop, runner, _domain;
+    "eval": function(pid, primitive, $parent) {
+      var $domain, data, dataName, evalProp, item, items, prop, runner, _domain;
       prop = primitive.prop;
       if (pid === 'root') {
         return;
       }
-      runner = function($data, $index, $domain) {
+      evalProp = function(value, $data, $index, $parent) {
+        var propValue, _runner;
+        if (value.enableCode) {
+          propValue = value.code;
+        } else {
+          propValue = value.value;
+        }
+        _runner = function(value, enableCode) {
+          var e, fn;
+          if (_.isType(value, 'String')) {
+            if (!enableCode) {
+              try {
+                value = eval(value);
+              } catch (_error) {
+                e = _error;
+              }
+            } else {
+              try {
+                fn = eval("(" + value + ")");
+                value = fn($data, $index, $parent);
+              } catch (_error) {
+                e = _error;
+                console.log(e);
+                alert(e);
+              }
+            }
+          }
+          return value;
+        };
+        if (_.isType(propValue, 'Array')) {
+          return propValue.map(_runner);
+        } else {
+          return _runner(propValue, value.enableCode);
+        }
+      };
+      runner = function($data, $index, $parent) {
         var _primitive;
         _primitive = {
           id: _.cid(),
           pid: pid,
           type: primitive.type,
           children: [],
+          dataRefer: {
+            $data: $data,
+            $index: $index,
+            $parent: $parent
+          },
           prop: (function() {
-            var key, propValue, value, _prop, _runner;
+            var key, value, _prop;
             _prop = {};
             for (key in prop) {
               value = prop[key];
               _prop[key] = {};
               _.extend(_prop[key], value);
-              if (value.enableCode) {
-                propValue = value.code;
-              } else {
-                propValue = value.value;
-              }
-              _runner = function(value, enableCode) {
-                var e, fn;
-                if (_.isType(value, 'String')) {
-                  if (!enableCode) {
-                    try {
-                      value = eval(value);
-                    } catch (_error) {
-                      e = _error;
-                    }
-                  } else {
-                    try {
-                      fn = eval("(" + value + ")");
-                      value = fn($data, $index, $domain);
-                    } catch (_error) {
-                      e = _error;
-                      console.log(e);
-                      alert(e);
-                    }
-                  }
-                }
-                return value;
-              };
-              if (_.isType(propValue, 'Array')) {
-                _prop[key].value = propValue.map(_runner);
-              } else {
-                _prop[key].value = _runner(propValue, value.enableCode);
-              }
+              _prop[key].value = evalProp(value, $data, $index, $parent);
             }
             return _prop;
           })()
@@ -104,7 +117,8 @@
         Renderer.primitives[_primitive.id] = _primitive;
         return _primitive;
       };
-      data = Data.list[prop.data.value];
+      dataName = evalProp(prop.data, null, null, $parent);
+      data = Data.list[dataName];
       if ((prop.domain != null) && (prop.domain.value != null)) {
         _domain = prop.domain.value;
         if (_.isType(_domain, 'String')) {
@@ -115,10 +129,12 @@
         });
       }
       if (data) {
-        items = data.map(runner);
+        items = data.map(function(row, index) {
+          return runner(row, index, $parent);
+        });
         return items;
       } else {
-        item = runner(null, null, $domain);
+        item = runner(null, null, $parent);
         return [item];
       }
     },

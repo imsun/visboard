@@ -84,31 +84,36 @@ var __hasProp = {}.hasOwnProperty,
 
   })(View);
   this.addMenubar = function(editor) {
-    var addMenu, axis, circle, coordinate, fileMenu, menubar, scatterPlot;
+    var axis, circle, coordinate, dataMenu, fileMenu, menubar, newData, primitiveMenu, scatterPlot, templateMenu;
     menubar = new Menubar(editor);
     fileMenu = new Menubar.Menu(menubar, 'file', 'File');
+    fileMenu.domElement.style.width = '50px';
     new Menubar.MenuItem(fileMenu, 'import', 'Import');
     new Menubar.MenuItem(fileMenu, 'export', 'Export');
-    addMenu = new Menubar.Menu(menubar, 'add', 'Add');
-    coordinate = new Menubar.MenuItem(addMenu, 'group', 'Group');
+    dataMenu = new Menubar.Menu(menubar, 'data', 'Data');
+    dataMenu.domElement.style.width = '50px';
+    newData = new Menubar.MenuItem(dataMenu, 'newData', 'New data');
+    primitiveMenu = new Menubar.Menu(menubar, 'primitive', 'Primitive');
+    coordinate = new Menubar.MenuItem(primitiveMenu, 'group', 'Group');
     coordinate.domElement.addEventListener('click', function(e) {
       return new Group();
     });
-    axis = new Menubar.MenuItem(addMenu, 'axis', 'Axis');
+    axis = new Menubar.MenuItem(primitiveMenu, 'axis', 'Axis');
     axis.domElement.addEventListener('click', function(e) {
       new Axis();
       if (typeof Renderer !== "undefined" && Renderer !== null) {
         return Renderer.renderAll();
       }
     });
-    circle = new Menubar.MenuItem(addMenu, 'circle', 'Circle');
+    circle = new Menubar.MenuItem(primitiveMenu, 'circle', 'Circle');
     circle.domElement.addEventListener('click', function(e) {
       new Circle();
       if (typeof Renderer !== "undefined" && Renderer !== null) {
         return Renderer.renderAll();
       }
     });
-    scatterPlot = new Menubar.MenuItem(addMenu, 'scatterplot', 'Scatterplot');
+    templateMenu = new Menubar.Menu(menubar, 'template', 'Template');
+    scatterPlot = new Menubar.MenuItem(templateMenu, 'scatterplot', 'Scatterplot');
     scatterPlot.domElement.addEventListener('click', function(e) {
       new Scatterplot();
       if (typeof Renderer !== "undefined" && Renderer !== null) {

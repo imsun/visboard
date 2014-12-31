@@ -23,14 +23,15 @@ var __hasProp = {}.hasOwnProperty,
 
   })(View);
   this.addEditor = function() {
-    var editor, menubar, sidebar;
+    var bottomBar, editor, menubar, sidebar;
     editor = new Editor();
     menubar = addMenubar(editor);
     root.Codeeditor = new CodeEditor(editor);
     sidebar = addSidebar(editor);
     root.TreePanel = new Sidebar.TreePanel(sidebar, _.cid(), Primitives.tree.data);
     new Sidebar.PropPanel(sidebar, _.cid());
-    addBottombar(editor);
+    bottomBar = addBottombar(editor);
+    root.DataPool = new Bottombar.DataPool(bottomBar, _.cid());
     addViewport(editor);
     return editor;
   };

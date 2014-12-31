@@ -109,10 +109,6 @@ var __hasProp = {}.hasOwnProperty,
             return prop.listener(this.value);
           });
         }
-        if (prop.enableCode) {
-          propValueEl.style.display = 'none';
-          codeButton.style.float = 'left';
-        }
       }
       if (prop.code != null) {
         codeButton = document.createElement('button');
@@ -129,9 +125,16 @@ var __hasProp = {}.hasOwnProperty,
               propValueEl.style.display = ' inline-block';
               codeButton.style.float = 'right';
             }
+            if (prop.codeListener != null) {
+              prop.codeListener(code, flag);
+            }
             return Renderer.renderAll();
           });
         });
+        if (prop.enableCode && (propValueEl != null)) {
+          propValueEl.style.display = 'none';
+          codeButton.style.float = 'left';
+        }
         return this.domElement.appendChild(codeButton);
       }
     };
@@ -139,5 +142,5 @@ var __hasProp = {}.hasOwnProperty,
     return PropRow;
 
   })(View);
-  return this.Sidebar.PropRow = PropRow;
+  return this.PropRow = PropRow;
 })();

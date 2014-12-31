@@ -18,7 +18,9 @@
 		root.TreePanel = new Sidebar.TreePanel sidebar, _.cid(), Primitives.tree.data
 		new Sidebar.PropPanel sidebar, _.cid()
 
-		addBottombar editor
+		bottomBar = addBottombar editor
+		root.DataPool = new Bottombar.DataPool bottomBar, _.cid()
+
 		addViewport editor
 
 		return editor

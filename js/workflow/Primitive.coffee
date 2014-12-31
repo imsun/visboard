@@ -47,10 +47,10 @@
 			@name = name or 'Primitive'
 			@data = null
 			@prop =
-				id:
-					name: 'ID'
-					type: 'label'
-					value: self.id
+				# id:
+				# 	name: 'ID'
+				# 	type: 'label'
+				# 	value: self.id
 				name:
 					name: 'Name'
 					type: 'text'
@@ -152,9 +152,9 @@
 			@prop.scale.value = value
 		setRotate: (value) ->
 			@prop.rotate.value = value
-		setCode: () ->
+		setCode: (disableList) ->
 			for key, value of @prop
-				if not(key in ['id', 'name', 'parent']) and not value.code?
+				if not(key in ['id', 'name', 'parent']) and (not disableList? or not(key in disableList)) and value.type isnt 'title' and not value.code?
 					propValue = value.value
 					if _.isType value.value, 'Function'
 						propValue = value.value()
@@ -163,7 +163,7 @@
 					else if _.isType propValue, 'String'
 						propValue = "'#{propValue}'"
 					
-					value.code = "function($data, $index) {\n    return #{propValue}\n}"
+					value.code = "function($data, $index, $parent) {\n    return #{propValue}\n}"
 					value.enableCode = false
 
 	class Root extends Primitive
@@ -172,7 +172,8 @@
 			delete @data
 			delete @prop.parent
 			delete @prop.data
-			@id = @prop.id.value = 'root'
+			@id = 'root'
+			# @prop.id.value = 'root'
 			@type = 'root'
 			@name = 'Root'
 

@@ -13,7 +13,7 @@
 				@domElement.appendChild titleEl
 
 	@addBottombar = (editor) ->
-		return new Bottombar editor, _.cid(), 'Data Pool'
+		return new Bottombar editor, _.cid()
 
 	@Bottombar = Bottombar
 )()

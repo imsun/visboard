@@ -13,68 +13,80 @@
 				root:
 					type: 'root'
 					children: []
-			Renderer._render 'root', 'root', list
+			Renderer._render 'root', 'root', list,
+				$data: null
+				$index: null
+				$parent: null
 			Renderer.draw Renderer.primitives
 			return Renderer.primitives
-		_render: (id, pid, list) ->
+		_render: (id, pid, list, $parent) ->
 			for child in list[pid].children
-				temp = (Renderer.eval child, list[child].target)
-				Renderer.primitives[id].children = Renderer.primitives[id].children.concat temp
+				children = Renderer.eval child, list[child].target, $parent
+				Renderer.primitives[id].children = Renderer.primitives[id].children.concat children
+
 			for child in Renderer.primitives[id].children
-				Renderer._render child.id, child.pid, list
+				# console.log child
+				Renderer._render child.id, child.pid, list, child.dataRefer
 			
 		clear: () ->
 			if $('#viewport')
 				$('#viewport').innerHTML = ''
 
-		eval: (pid, primitive) ->
+		eval: (pid, primitive, $parent) ->
 			prop = primitive.prop
 			return if pid is 'root'
-			# if prop.data? and prop.data.value? or prop.domain? and prop.domain.value? or prop.
-			runner = ($data, $index, $domain) ->
+
+			evalProp = (value, $data, $index, $parent) ->
+				if value.enableCode
+					propValue = value.code
+				else
+					propValue = value.value
+				
+				_runner = (value, enableCode) ->
+					if _.isType value, 'String'
+						if not enableCode
+							try
+								value = eval value
+							catch e
+								# console.log e
+						else
+							try
+								fn = eval "(#{value})"
+								value = fn($data, $index, $parent)
+							catch e
+								console.log e
+								alert e
+					return value
+
+				if _.isType propValue, 'Array'
+					return propValue.map _runner
+				else
+					return _runner propValue, value.enableCode
+
+			runner = ($data, $index, $parent) ->
 				_primitive =
 					id: _.cid()
 					pid: pid
 					type: primitive.type
 					children: []
+					dataRefer:
+						$data: $data
+						$index: $index
+						$parent: $parent
 					prop: (() ->
 						_prop = {}
 						for key, value of prop
 							_prop[key] = {}
 							_.extend _prop[key], value
-
-							if value.enableCode
-								propValue = value.code
-							else
-								propValue = value.value
-							
-							_runner = (value, enableCode) ->
-								if _.isType value, 'String'
-									if not enableCode
-										try
-											value = eval value
-										catch e
-											# console.log e
-									else
-										try
-											fn = eval "(#{value})"
-											value = fn($data, $index, $domain)
-										catch e
-											console.log e
-											alert e
-								return value
-
-							if _.isType propValue, 'Array'
-								_prop[key].value = propValue.map _runner
-							else
-								_prop[key].value = _runner propValue, value.enableCode
-
+							_prop[key].value = evalProp value, $data, $index, $parent
 						return _prop
 					)()
 				Renderer.primitives[_primitive.id] = _primitive
 				return _primitive
 
-			data = Data.list[prop.data.value]
+
+			dataName = evalProp prop.data, null, null, $parent
+			data = Data.list[dataName]
 
 			if prop.domain? and prop.domain.value?
 				_domain = prop.domain.value
@@ -84,10 +96,11 @@
 					return row[_domain[1]]
 
 			if data
-				items = data.map runner
+				items = data.map (row, index) ->
+							runner row, index, $parent
 				return items
 			else
-				item = runner null, null, $domain
+				item = runner null, null, $parent
 				return [item]
 
 		draw: (primitives) ->
