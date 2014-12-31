@@ -133,6 +133,7 @@ var __hasProp = {}.hasOwnProperty,
           }
         }
       });
+      this.setCode();
       this.updateChildren();
       Primitives.tree.changeParent(this.xAxis, this.id);
       Primitives.tree.changeParent(this.yAxis, this.id);

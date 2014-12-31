@@ -46,87 +46,80 @@
       }
     },
     "eval": function(pid, primitive) {
-      var $domain, data, item, items, prop, runner, _domain, _primitive;
+      var $domain, data, item, items, prop, runner, _domain;
       prop = primitive.prop;
       if (pid === 'root') {
         return;
       }
-      if ((prop.data != null) && (prop.data.value != null) || (prop.domain != null) && (prop.domain.value != null)) {
-        runner = function($data, $index, $domain) {
-          var _primitive;
-          _primitive = {
-            id: _.cid(),
-            pid: pid,
-            type: primitive.type,
-            children: [],
-            prop: (function() {
-              var key, value, _prop, _runner;
-              _prop = {};
-              for (key in prop) {
-                value = prop[key];
-                _prop[key] = {};
-                _.extend(_prop[key], value);
-                _runner = function(value) {
-                  var e, fn;
-                  if (_.isType(value, 'String')) {
-                    if (!value.match(/^function.+}$/)) {
-                      try {
-                        value = eval(value);
-                      } catch (_error) {
-                        e = _error;
-                      }
-                    } else {
-                      try {
-                        fn = eval("(" + value + ")");
-                        value = fn($data, $index, $domain);
-                      } catch (_error) {
-                        e = _error;
-                        console.log(e);
-                        alert(e);
-                      }
-                    }
-                  }
-                  return value;
-                };
-                if (_.isType(value.value, 'Array')) {
-                  _prop[key].value = value.value.map(_runner);
-                } else {
-                  _prop[key].value = _runner(value.value);
-                }
-              }
-              return _prop;
-            })()
-          };
-          Renderer.primitives[_primitive.id] = _primitive;
-          return _primitive;
-        };
-        data = Data.list[prop.data.value];
-        if ((prop.domain != null) && (prop.domain.value != null)) {
-          _domain = prop.domain.value;
-          if (_.isType(_domain, 'String')) {
-            _domain = JSON.parse(_domain);
-          }
-          $domain = Data.list[_domain[0]].map(function(row) {
-            return row[_domain[1]];
-          });
-        }
-        if (data) {
-          items = data.map(runner);
-          return items;
-        } else {
-          item = runner(null, null, $domain);
-          return [item];
-        }
-      } else {
+      runner = function($data, $index, $domain) {
+        var _primitive;
         _primitive = {
           id: _.cid(),
           pid: pid,
           type: primitive.type,
-          prop: primitive.prop,
-          children: []
+          children: [],
+          prop: (function() {
+            var key, propValue, value, _prop, _runner;
+            _prop = {};
+            for (key in prop) {
+              value = prop[key];
+              _prop[key] = {};
+              _.extend(_prop[key], value);
+              if (value.enableCode) {
+                propValue = value.code;
+              } else {
+                propValue = value.value;
+              }
+              _runner = function(value, enableCode) {
+                var e, fn;
+                if (_.isType(value, 'String')) {
+                  if (!enableCode) {
+                    try {
+                      value = eval(value);
+                    } catch (_error) {
+                      e = _error;
+                    }
+                  } else {
+                    try {
+                      fn = eval("(" + value + ")");
+                      value = fn($data, $index, $domain);
+                    } catch (_error) {
+                      e = _error;
+                      console.log(e);
+                      alert(e);
+                    }
+                  }
+                }
+                return value;
+              };
+              if (_.isType(propValue, 'Array')) {
+                _prop[key].value = propValue.map(_runner);
+              } else {
+                _prop[key].value = _runner(propValue, value.enableCode);
+              }
+            }
+            return _prop;
+          })()
         };
         Renderer.primitives[_primitive.id] = _primitive;
-        return [_primitive];
+        return _primitive;
+      };
+      data = Data.list[prop.data.value];
+      if ((prop.domain != null) && (prop.domain.value != null)) {
+        _domain = prop.domain.value;
+        if (_.isType(_domain, 'String')) {
+          _domain = JSON.parse(_domain);
+        }
+        $domain = Data.list[_domain[0]].map(function(row) {
+          return row[_domain[1]];
+        });
+      }
+      if (data) {
+        items = data.map(runner);
+        return items;
+      } else {
+        item = runner(null, null, $domain);
+        return [item];
       }
     },
     draw: function(primitives) {

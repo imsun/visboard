@@ -47,7 +47,7 @@ var __hasProp = {}.hasOwnProperty,
     Primitive.counter = 0;
 
     function Primitive(name) {
-      var key, self, value, _ref;
+      var self;
       self = this;
       this.parent = 'root';
       this.id = 'UID' + Primitive.counter++;
@@ -58,9 +58,7 @@ var __hasProp = {}.hasOwnProperty,
         id: {
           name: 'ID',
           type: 'label',
-          value: function() {
-            return self.id;
-          }
+          value: self.id
         },
         name: {
           name: 'Name',
@@ -173,13 +171,7 @@ var __hasProp = {}.hasOwnProperty,
         }
       };
       this.init(name);
-      _ref = this.prop;
-      for (key in _ref) {
-        value = _ref[key];
-        if (!(key === 'id') && (value.code == null)) {
-          value.code = null;
-        }
-      }
+      this.setCode();
       Primitives.tree.insert(this);
       if (this.parent && this.parent !== 'root') {
         Primitives.tree.changeParent(this, this.parent);
@@ -212,6 +204,31 @@ var __hasProp = {}.hasOwnProperty,
       return this.prop.rotate.value = value;
     };
 
+    Primitive.prototype.setCode = function() {
+      var key, propValue, value, _ref, _results;
+      _ref = this.prop;
+      _results = [];
+      for (key in _ref) {
+        value = _ref[key];
+        if (!(key === 'id' || key === 'name' || key === 'parent') && (value.code == null)) {
+          propValue = value.value;
+          if (_.isType(value.value, 'Function')) {
+            propValue = value.value();
+          }
+          if ((_.isType(propValue, 'Object')) || (_.isType(propValue, 'Array'))) {
+            propValue = JSON.stringify(propValue);
+          } else if (_.isType(propValue, 'String')) {
+            propValue = "'" + propValue + "'";
+          }
+          value.code = "function($data, $index) {\n    return " + propValue + "\n}";
+          _results.push(value.enableCode = false);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
     return Primitive;
 
   })();
@@ -227,7 +244,7 @@ var __hasProp = {}.hasOwnProperty,
       delete this.data;
       delete this.prop.parent;
       delete this.prop.data;
-      this.id = 'root';
+      this.id = this.prop.id.value = 'root';
       this.type = 'root';
       return this.name = 'Root';
     };

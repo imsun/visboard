@@ -88,6 +88,7 @@
 					listener: (value) ->
 						self.prop.height.value = value
 						self.updateChildren()
+			@setCode()
 
 			@updateChildren()
 			Primitives.tree.changeParent @xAxis, @id

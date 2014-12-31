@@ -26,6 +26,7 @@ var __hasProp = {}.hasOwnProperty,
     var editor, menubar, sidebar;
     editor = new Editor();
     menubar = addMenubar(editor);
+    root.Codeeditor = new CodeEditor(editor);
     sidebar = addSidebar(editor);
     root.TreePanel = new Sidebar.TreePanel(sidebar, _.cid(), Primitives.tree.data);
     new Sidebar.PropPanel(sidebar, _.cid());

@@ -42,15 +42,9 @@
 					propValueEl = document.createElement 'input'
 					propValueEl.className = 'prop-value'
 					propValueEl.type = 'checkbox'
-					if propValue
-						propValueEl.checked = 'checked'
-					else
-						propValueEl.removeAttribute 'checked'
+					propValueEl.checked = propValue
 					propValueEl.addEventListener event, (e) ->
-						if this.checked
-							prop.listener true
-						else
-							prop.listener false						
+						prop.listener this.checked				
 				when 'select'
 					propValueEl = document.createElement 'select'
 					propValueEl.className = 'prop-value'
@@ -91,12 +85,34 @@
 					propValueEl.appendChild temp
 					propValueEl.appendChild endEl
 
+
 			@domElement.appendChild propLabelEl
 			if propValueEl?
 				@domElement.appendChild propValueEl
 				if prop.listener? and not (prop.type in ['range', 'boolean'])
 					propValueEl.addEventListener event, () ->
 						prop.listener this.value
+				if prop.enableCode
+					propValueEl.style.display = 'none'
+					codeButton.style.float = 'left'
+
+			if prop.code?
+				codeButton = document.createElement 'button'
+				codeButton.className = 'prop-code'
+				codeButton.innerText = '</>'
+				codeButton.addEventListener 'click', () ->
+					Codeeditor.show prop.code, prop.enableCode, (code, flag) ->
+						prop.code = code
+						prop.enableCode = flag
+						if flag
+							propValueEl.style.display = 'none'
+							codeButton.style.float = 'left'
+						else
+							propValueEl.style.display = ' inline-block'
+							codeButton.style.float = 'right'
+						Renderer.renderAll()
+						
+				@domElement.appendChild codeButton
 					
 	@Sidebar.PropRow = PropRow
 )()

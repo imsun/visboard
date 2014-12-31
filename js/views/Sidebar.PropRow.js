@@ -12,7 +12,7 @@ var __hasProp = {}.hasOwnProperty,
     }
 
     PropRow.prototype.init = function(id, key, prop) {
-      var changeRange, endEl, event, option, optionInfo, propLabelEl, propValue, propValueEl, set, startEl, temp, _i, _len, _ref;
+      var changeRange, codeButton, endEl, event, option, optionInfo, propLabelEl, propValue, propValueEl, set, startEl, temp, _i, _len, _ref;
       this.id = id;
       this.prop = prop;
       if (_.isType(prop.value, 'Function')) {
@@ -55,17 +55,9 @@ var __hasProp = {}.hasOwnProperty,
           propValueEl = document.createElement('input');
           propValueEl.className = 'prop-value';
           propValueEl.type = 'checkbox';
-          if (propValue) {
-            propValueEl.checked = 'checked';
-          } else {
-            propValueEl.removeAttribute('checked');
-          }
+          propValueEl.checked = propValue;
           propValueEl.addEventListener(event, function(e) {
-            if (this.checked) {
-              return prop.listener(true);
-            } else {
-              return prop.listener(false);
-            }
+            return prop.listener(this.checked);
           });
           break;
         case 'select':
@@ -113,10 +105,34 @@ var __hasProp = {}.hasOwnProperty,
       if (propValueEl != null) {
         this.domElement.appendChild(propValueEl);
         if ((prop.listener != null) && !((_ref = prop.type) === 'range' || _ref === 'boolean')) {
-          return propValueEl.addEventListener(event, function() {
+          propValueEl.addEventListener(event, function() {
             return prop.listener(this.value);
           });
         }
+        if (prop.enableCode) {
+          propValueEl.style.display = 'none';
+          codeButton.style.float = 'left';
+        }
+      }
+      if (prop.code != null) {
+        codeButton = document.createElement('button');
+        codeButton.className = 'prop-code';
+        codeButton.innerText = '</>';
+        codeButton.addEventListener('click', function() {
+          return Codeeditor.show(prop.code, prop.enableCode, function(code, flag) {
+            prop.code = code;
+            prop.enableCode = flag;
+            if (flag) {
+              propValueEl.style.display = 'none';
+              codeButton.style.float = 'left';
+            } else {
+              propValueEl.style.display = ' inline-block';
+              codeButton.style.float = 'right';
+            }
+            return Renderer.renderAll();
+          });
+        });
+        return this.domElement.appendChild(codeButton);
       }
     };
 

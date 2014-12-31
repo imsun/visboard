@@ -30,71 +30,65 @@
 		eval: (pid, primitive) ->
 			prop = primitive.prop
 			return if pid is 'root'
-			if prop.data? and prop.data.value? or prop.domain? and prop.domain.value?
-				runner = ($data, $index, $domain) ->
-					_primitive =
-						id: _.cid()
-						pid: pid
-						type: primitive.type
-						children: []
-						prop: (() ->
-							_prop = {}
-							for key, value of prop
-								_prop[key] = {}
-								_.extend _prop[key], value
-								
-								_runner = (value) ->
-									if _.isType value, 'String'
-										if not value.match /^function.+}$/
-											try
-												value = eval value
-											catch e
-												# console.log e
-										else
-											try
-												fn = eval "(#{value})"
-												value = fn($data, $index, $domain)
-											catch e
-												console.log e
-												alert e
-									return value
-
-								if _.isType value.value, 'Array'
-									_prop[key].value = value.value.map _runner
-								else
-									_prop[key].value = _runner value.value
-
-							return _prop
-						)()
-					Renderer.primitives[_primitive.id] = _primitive
-					return _primitive
-
-				data = Data.list[prop.data.value]
-
-				if prop.domain? and prop.domain.value?
-					_domain = prop.domain.value
-					if _.isType _domain, 'String'
-						_domain = JSON.parse _domain
-					$domain = Data.list[_domain[0]].map (row) ->
-						return row[_domain[1]]
-
-				if data
-					# TO DO
-					# 	应在传入的数据里存储 children 的引用
-					items = data.map runner
-					return items
-				else
-					item = runner null, null, $domain
-					return [item]
-			else
+			# if prop.data? and prop.data.value? or prop.domain? and prop.domain.value? or prop.
+			runner = ($data, $index, $domain) ->
 				_primitive =
 					id: _.cid()
 					pid: pid
 					type: primitive.type
-					prop: primitive.prop
 					children: []
+					prop: (() ->
+						_prop = {}
+						for key, value of prop
+							_prop[key] = {}
+							_.extend _prop[key], value
+
+							if value.enableCode
+								propValue = value.code
+							else
+								propValue = value.value
+							
+							_runner = (value, enableCode) ->
+								if _.isType value, 'String'
+									if not enableCode
+										try
+											value = eval value
+										catch e
+											# console.log e
+									else
+										try
+											fn = eval "(#{value})"
+											value = fn($data, $index, $domain)
+										catch e
+											console.log e
+											alert e
+								return value
+
+							if _.isType propValue, 'Array'
+								_prop[key].value = propValue.map _runner
+							else
+								_prop[key].value = _runner propValue, value.enableCode
+
+						return _prop
+					)()
 				Renderer.primitives[_primitive.id] = _primitive
-				return [_primitive]
+				return _primitive
+
+			data = Data.list[prop.data.value]
+
+			if prop.domain? and prop.domain.value?
+				_domain = prop.domain.value
+				if _.isType _domain, 'String'
+					_domain = JSON.parse _domain
+				$domain = Data.list[_domain[0]].map (row) ->
+					return row[_domain[1]]
+
+			if data
+				items = data.map runner
+				return items
+			else
+				item = runner null, null, $domain
+				return [item]
 
 		draw: (primitives) ->
 			primitives = primitives or Renderer.primitives

@@ -50,8 +50,7 @@
 				id:
 					name: 'ID'
 					type: 'label'
-					value: () ->
-						return self.id
+					value: self.id
 				name:
 					name: 'Name'
 					type: 'text'
@@ -133,9 +132,7 @@
 						Renderer.renderAll()
 
 			@init name
-			for key, value of @prop
-				if not(key in ['id']) and not value.code?
-					value.code = null
+			@setCode()
 
 			Primitives.tree.insert @
 			if @parent and @parent isnt 'root'
@@ -155,6 +152,19 @@
 			@prop.scale.value = value
 		setRotate: (value) ->
 			@prop.rotate.value = value
+		setCode: () ->
+			for key, value of @prop
+				if not(key in ['id', 'name', 'parent']) and not value.code?
+					propValue = value.value
+					if _.isType value.value, 'Function'
+						propValue = value.value()
+					if (_.isType propValue, 'Object') or (_.isType propValue, 'Array')
+						propValue = JSON.stringify propValue
+					else if _.isType propValue, 'String'
+						propValue = "'#{propValue}'"
+					
+					value.code = "function($data, $index) {\n    return #{propValue}\n}"
+					value.enableCode = false
 
 	class Root extends Primitive
 		init: () ->
@@ -162,7 +172,7 @@
 			delete @data
 			delete @prop.parent
 			delete @prop.data
-			@id = 'root'
+			@id = @prop.id.value = 'root'
 			@type = 'root'
 			@name = 'Root'
 
