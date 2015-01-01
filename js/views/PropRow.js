@@ -39,6 +39,11 @@ var __hasProp = {}.hasOwnProperty,
           propValueEl.readOnly = 'readOnly';
           propValueEl.value = propValue;
           break;
+        case 'html':
+          propValueEl = document.createElement('div');
+          propValueEl.className = 'prop-html';
+          propValueEl.innerHTML = propValue;
+          break;
         case 'text':
           propValueEl = document.createElement('input');
           propValueEl.className = 'prop-value';
@@ -103,6 +108,7 @@ var __hasProp = {}.hasOwnProperty,
       }
       this.domElement.appendChild(propLabelEl);
       if (propValueEl != null) {
+        this.domElement.propValueEl = propValueEl;
         this.domElement.appendChild(propValueEl);
         if ((prop.listener != null) && !((_ref = prop.type) === 'range' || _ref === 'boolean')) {
           propValueEl.addEventListener(event, function() {
@@ -115,7 +121,7 @@ var __hasProp = {}.hasOwnProperty,
         codeButton.className = 'prop-code';
         codeButton.innerText = '</>';
         codeButton.addEventListener('click', function() {
-          return Codeeditor.show(prop.code, prop.enableCode, function(code, flag) {
+          return CodeEditor.show(prop.code, prop.enableCode, function(code, flag) {
             prop.code = code;
             prop.enableCode = flag;
             if (flag) {

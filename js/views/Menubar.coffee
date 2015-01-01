@@ -61,6 +61,11 @@
 		dataMenu.domElement.style.width = '50px'
 
 		newData = new Menubar.MenuItem dataMenu, 'newData', 'New data'
+		newData.domElement.addEventListener 'click', (e) ->
+			Reader.upload()
+		newFilter = new Menubar.MenuItem dataMenu, 'newFilter', 'Filter'
+		newFilter.domElement.addEventListener 'click', (e) ->
+			new Data.Filter
 
 		primitiveMenu = new Menubar.Menu menubar, 'primitive', 'Primitive'
 

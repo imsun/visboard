@@ -1,5 +1,23 @@
 (() ->
 	Reader = {}
+
+	uploader = document.createElement 'input'
+	uploader.type = 'file'
+	uploader.style.display = 'none'
+	uploader.addEventListener 'change', (e) ->
+		reader = new FileReader
+		name = @files[0].name
+		reader.onload = (e) ->
+			file = e.target.result
+			new Data name, (Reader.parse file)
+			TreePanel.select TreePanel.selected if TreePanel?
+		reader.readAsText @files[0], 'utf-8'
+	document.body.appendChild uploader
+	Reader._uploader = uploader
+
+	Reader.upload = () ->
+		Reader._uploader.click()
+
 	Reader.parse = (data) ->
 		rows = data.replace /\n+/g, '\n'
 					.replace /\r+/g, ''
@@ -22,6 +40,7 @@
 			callback null, (Reader.parse @responseText)
 		req.open 'get', file, true
 		req.send()
+
 		
 	if exports?
 		module.exports = Reader

@@ -14,6 +14,7 @@
 			@tree = new Tree @, _.cid(), data, ['root'], @
 
 		select: (node)->
+			return if not node
 			@selected.domElement.titleEl.className = 'tree-node-title' if @selected?
 			node.domElement.titleEl.className = 'tree-node-title selected'
 			@selected = node

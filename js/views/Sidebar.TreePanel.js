@@ -23,6 +23,9 @@ var __hasProp = {}.hasOwnProperty,
 
     TreePanel.prototype.select = function(node) {
       var listener, _i, _len, _ref, _results;
+      if (!node) {
+        return;
+      }
       if (this.selected != null) {
         this.selected.domElement.titleEl.className = 'tree-node-title';
       }

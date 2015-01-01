@@ -4,41 +4,29 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-<script src="js/lib/d3.v3.min.js" charset="utf-8"></script>
+<script src="js/lib/d3.js" charset="utf-8"></script>
 <!-- <script src="js/lib/pathgl.js"></script> -->
 <script src="js/lib/util.js"></script>
 <script src="test/data/data.js"></script>
 <script src="js/workflow/Data.js"></script>
+<script src="js/workflow/Reader.js"></script>
 <script src="js/views/View.js"></script>
 <script src="js/views/Viewport.js"></script>
-<script src="js/views/CodeEditor.js"></script>
 <script src="js/workflow/Primitive.js"></script>
 <script src="js/workflow/Template.js"></script>
 <script src="js/workflow/Renderer.js"></script>
+<script src="js/views/PropRow.js"></script>
+<script src="js/views/Modal.js"></script>
+<script src="js/views/Modal.CodeEditor.js"></script>
 <script src="js/views/Sidebar.js"></script>
 <script src="js/views/Sidebar.TreePanel.js"></script>
-<script src="js/views/PropRow.js"></script>
 <script src="js/views/Sidebar.PropPanel.js"></script>
 <script src="js/views/Bottombar.js"></script>
+<script src="js/views/Bottombar.DataPanel.js"></script>
 <script src="js/views/Bottombar.DataPool.js"></script>
 <script src="js/views/Menubar.js"></script>
 <script src="js/views/Editor.js"></script>
 <script>
-	new Data('game', data)
-	new Data('count', [
-	{
-		index: 0
-	},
-	{
-		index: 1
-	},
-	{
-		index: 2
-	},
-	{
-		index: 3
-	}
-	])
 	var editor = addEditor()
 	document.body.appendChild(editor.domElement)
 </script>

@@ -84,7 +84,7 @@ var __hasProp = {}.hasOwnProperty,
 
   })(View);
   this.addMenubar = function(editor) {
-    var axis, circle, coordinate, dataMenu, fileMenu, menubar, newData, primitiveMenu, scatterPlot, templateMenu;
+    var axis, circle, coordinate, dataMenu, fileMenu, menubar, newData, newFilter, primitiveMenu, scatterPlot, templateMenu;
     menubar = new Menubar(editor);
     fileMenu = new Menubar.Menu(menubar, 'file', 'File');
     fileMenu.domElement.style.width = '50px';
@@ -93,6 +93,13 @@ var __hasProp = {}.hasOwnProperty,
     dataMenu = new Menubar.Menu(menubar, 'data', 'Data');
     dataMenu.domElement.style.width = '50px';
     newData = new Menubar.MenuItem(dataMenu, 'newData', 'New data');
+    newData.domElement.addEventListener('click', function(e) {
+      return Reader.upload();
+    });
+    newFilter = new Menubar.MenuItem(dataMenu, 'newFilter', 'Filter');
+    newFilter.domElement.addEventListener('click', function(e) {
+      return new Data.Filter;
+    });
     primitiveMenu = new Menubar.Menu(menubar, 'primitive', 'Primitive');
     coordinate = new Menubar.MenuItem(primitiveMenu, 'group', 'Group');
     coordinate.domElement.addEventListener('click', function(e) {

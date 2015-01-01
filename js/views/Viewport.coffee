@@ -7,7 +7,7 @@
 
 	@addViewport = (editor) ->
 		viewport = new Viewport editor, 'viewport'
-		width =  window.innerWidth - 250
+		width =  window.innerWidth - 270
 		height = window.innerHeight * 0.7 - 30
 		viewport.domElement.width = width
 		viewport.domElement.height = height

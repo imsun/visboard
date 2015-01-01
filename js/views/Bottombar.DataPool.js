@@ -11,11 +11,70 @@ var __hasProp = {}.hasOwnProperty,
       return DataPool.__super__.constructor.apply(this, arguments);
     }
 
+    DataPool.selected = null;
+
+    DataPool.select = function(node) {
+      return DataPool.selected = node;
+    };
+
     DataPool.prototype.init = function(id) {
       this.id = id;
       this.domElement = document.createElement('div');
       this.domElement.id = this.id;
       return this.domElement.className = 'data-pool';
+    };
+
+    DataPool.prototype.display = function(dataTrees) {
+      var Tree, dataTree, diagonal, fullHeight, group, height, i, link, links, node, nodes, style, svg, width, _i, _len, _results;
+      this.clear();
+      style = getComputedStyle(this.domElement);
+      width = parseFloat(style.getPropertyValue('width'));
+      fullHeight = parseFloat(style.getPropertyValue('height'));
+      height = fullHeight / dataTrees.length;
+      Tree = d3.layout.tree().size([height, width - 200]).separation(function(a, b) {
+        if (a.parent === b.parent) {
+          return 1 / (a.depth + 1);
+        } else {
+          return 2 / (a.depth + 1);
+        }
+      });
+      diagonal = d3.svg.diagonal().projection(function(d) {
+        return [d.y, d.x];
+      });
+      svg = d3.select(this.domElement).append('svg').attr('width', width).attr('height', fullHeight);
+      _results = [];
+      for (i = _i = 0, _len = dataTrees.length; _i < _len; i = ++_i) {
+        dataTree = dataTrees[i];
+        nodes = Tree.nodes(dataTree);
+        links = Tree.links(nodes);
+        group = svg.append('g').attr('transform', "translate(40, " + (i * height) + ")");
+        link = group.selectAll('.link').data(links).enter().append('path').attr('class', 'link').attr('d', diagonal);
+        node = group.selectAll('.node').data(nodes).enter().append('g').attr('class', 'node').attr('transform', function(d) {
+          return "translate(" + d.y + ", " + d.x + ")";
+        }).on('click', function(d, i) {
+          DataPool.select(this);
+          if (typeof DataPanel !== "undefined" && DataPanel !== null) {
+            return DataPanel.display(Data.getNode(d.name, Data.tree));
+          }
+        });
+        node.append('circle').attr('r', 4.5);
+        _results.push(node.append('text').attr('dx', function(d, i) {
+          if (d.children && i) {
+            return -8;
+          } else {
+            return 8;
+          }
+        }).attr('dy', 3).style('text-anchor', function(d, i) {
+          if (d.children && i) {
+            return 'end';
+          } else {
+            return 'start';
+          }
+        }).text(function(d) {
+          return d.name;
+        }));
+      }
+      return _results;
     };
 
     return DataPool;

@@ -18,7 +18,7 @@
 
 			# if prop.type is 'select'
 			event = 'change'
-			
+
 			switch prop.type
 				when 'title'
 					propLabelEl.className += ' prop-title'
@@ -28,6 +28,10 @@
 					propValueEl.type = 'text'
 					propValueEl.readOnly = 'readOnly'
 					propValueEl.value = propValue
+				when 'html'
+					propValueEl = document.createElement 'div'
+					propValueEl.className = 'prop-html'
+					propValueEl.innerHTML = propValue
 				when 'text'
 					propValueEl = document.createElement 'input'
 					propValueEl.className = 'prop-value'
@@ -88,6 +92,7 @@
 
 			@domElement.appendChild propLabelEl
 			if propValueEl?
+				@domElement.propValueEl  = propValueEl
 				@domElement.appendChild propValueEl
 				if prop.listener? and not (prop.type in ['range', 'boolean'])
 					propValueEl.addEventListener event, () ->
@@ -98,7 +103,7 @@
 				codeButton.className = 'prop-code'
 				codeButton.innerText = '</>'
 				codeButton.addEventListener 'click', () ->
-					Codeeditor.show prop.code, prop.enableCode, (code, flag) ->
+					CodeEditor.show prop.code, prop.enableCode, (code, flag) ->
 						prop.code = code
 						prop.enableCode = flag
 						if flag

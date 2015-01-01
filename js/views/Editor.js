@@ -26,12 +26,14 @@ var __hasProp = {}.hasOwnProperty,
     var bottomBar, editor, menubar, sidebar;
     editor = new Editor();
     menubar = addMenubar(editor);
-    root.Codeeditor = new CodeEditor(editor);
+    root.CodeEditor = new Modal.CodeEditor(editor);
     sidebar = addSidebar(editor);
     root.TreePanel = new Sidebar.TreePanel(sidebar, _.cid(), Primitives.tree.data);
     new Sidebar.PropPanel(sidebar, _.cid());
     bottomBar = addBottombar(editor);
     root.DataPool = new Bottombar.DataPool(bottomBar, _.cid());
+    root.DataPool.domElement.style.width = root.innerWidth - 270 + 'px';
+    root.DataPanel = new Bottombar.DataPanel(bottomBar, _.cid());
     addViewport(editor);
     return editor;
   };

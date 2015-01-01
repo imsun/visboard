@@ -12,7 +12,7 @@
 		editor = new Editor()
 		menubar = addMenubar editor
 
-		root.Codeeditor = new CodeEditor editor
+		root.CodeEditor = new Modal.CodeEditor editor
 
 		sidebar = addSidebar editor
 		root.TreePanel = new Sidebar.TreePanel sidebar, _.cid(), Primitives.tree.data
@@ -20,6 +20,8 @@
 
 		bottomBar = addBottombar editor
 		root.DataPool = new Bottombar.DataPool bottomBar, _.cid()
+		root.DataPool.domElement.style.width = root.innerWidth - 270 + 'px'
+		root.DataPanel = new Bottombar.DataPanel bottomBar, _.cid()
 
 		addViewport editor
 
