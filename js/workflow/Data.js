@@ -194,7 +194,9 @@
           }
           input = Data.list[inputName];
           if (select !== '*') {
-            select = select.split(',');
+            select = select.split(',').map(function(row) {
+              return row.trim();
+            });
           }
           output = [];
           input.forEach(function(row, index) {

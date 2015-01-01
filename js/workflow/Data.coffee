@@ -139,6 +139,8 @@
 
 					if select isnt '*'
 						select = select.split ','
+									.map (row) ->
+										return row.trim()
 
 					output = []
 					input.forEach (row, index) ->
