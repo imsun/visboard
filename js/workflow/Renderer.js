@@ -55,7 +55,7 @@
       if (pid === 'root') {
         return;
       }
-      evalProp = function(value, $data, $index, $parent) {
+      evalProp = function(value, $data, $index, $domain, $parent) {
         var propValue, _runner;
         if (value.enableCode) {
           propValue = value.code;
@@ -74,7 +74,7 @@
             } else {
               try {
                 fn = eval("(" + value + ")");
-                value = fn($data, $index, $parent);
+                value = fn($data, $index, $domain, $parent);
               } catch (_error) {
                 e = _error;
                 console.log(e);
@@ -109,7 +109,7 @@
               value = prop[key];
               _prop[key] = {};
               _.extend(_prop[key], value);
-              _prop[key].value = evalProp(value, $data, $index, $parent);
+              _prop[key].value = evalProp(value, $data, $index, $domain, $parent);
             }
             return _prop;
           })()
@@ -117,7 +117,7 @@
         Renderer.primitives[_primitive.id] = _primitive;
         return _primitive;
       };
-      dataName = evalProp(prop.data, null, null, $parent);
+      dataName = evalProp(prop.data, null, null, $domain, $parent);
       data = Data.list[dataName];
       if ((prop.domain != null) && (prop.domain.value != null)) {
         _domain = prop.domain.value;

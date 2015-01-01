@@ -30,7 +30,8 @@
 					listener: (value) ->
 						self.prop.pointData.value = value
 						self.point.bind value
-						self.updateChildren()
+						Renderer.renderAll()
+						# self.updateChildren()
 					# codeListener: (value, flag) ->
 					# 	self.point.prop.data.enableCode = flag
 					# 	self.point.prop.data.code = value
@@ -51,11 +52,8 @@
 									value: JSON.stringify [dataName, key]
 						return result
 					listener: (value) ->
-						if value is 'null'
-							self.prop.xAxis.value = null
-						else
-							self.prop.xAxis.value = value
-						self.updateChildren()
+						self.setXAxis value
+						Renderer.renderAll()
 				yAxis:
 					name: 'Y axis'
 					type: 'select'
@@ -72,26 +70,23 @@
 									value: JSON.stringify [dataName, key]
 						return result
 					listener: (value) ->
-						if value is 'null'
-							self.prop.yAxis.value = null
-						else
-							self.prop.yAxis.value = value
-						self.updateChildren()
+						self.setYAxis value
+						Renderer.renderAll()
 				width:
 					name: 'Width'
 					type: 'number'
 					value: 300
 					listener: (value) ->
-						self.prop.width.value = value
-						self.updateChildren()
+						self.setWidth value
+						Renderer.renderAll()
 				height:
 					name: 'Height'
 					type: 'number'
 					value: 150
 					listener: (value) ->
-						self.prop.height.value = value
-						self.updateChildren()
-			@setCode(['pointData'])
+						self.setHeight value
+						Renderer.renderAll()
+			@setCode(['pointData', 'xAxis', 'yAxis'])
 
 			@updateChildren()
 			Primitives.tree.changeParent @xAxis, @id
@@ -103,15 +98,21 @@
 		init: (name) ->
 			@type = 'scatterplot'
 			@name = name or 'Scatterplot ' + Scatterplot.counter++
+			
+		setWidth: (value) ->
+			@prop.width.value = value
+			@xAxis.prop.length.value = value
+		setHeight: (value) ->
+			@prop.height.value = value
+			@yAxis.prop.length.value = value
+			@yAxis.prop.y.value = value
+		setXAxis: (value) ->
+			value = null if value is 'null'
+			@prop.xAxis.value = value
+			@xAxis.prop.domain.value = value
 
-		updateChildren: () ->
-			@xAxis.prop.length.value = @prop.width.value
-			@yAxis.prop.length.value = @prop.height.value
-			@yAxis.prop.y.value = @prop.height.value
-			@xAxis.prop.domain.value = @prop.xAxis.value
-			@yAxis.prop.domain.value = @prop.yAxis.value
-			if @prop.xAxis.value
-				xDomain = @prop.xAxis.value
+			if value
+				xDomain = value
 				if _.isType xDomain, 'String'
 					xDomain = JSON.parse xDomain
 
@@ -125,17 +126,24 @@
 				xMin = Math.min.apply @, xColumn
 				if xMin >= 0
 					@xAxis.prop.range.value = [0, xMax]
-					@point.prop.x.value = "$data['#{xDomain[1]}'] / #{xMax} * #{@prop.width.value}"
+					@point.prop.x.value = "$data['#{xDomain[1]}'] / #{xMax} * #{@prop.width.value}" if @prop.pointData.value
 					@yAxis.prop.x.value = 0
 				else
 					@xAxis.prop.range.value = [xMin, xMax]
 					step = @prop.width.value / (xMax - xMin)
-					@point.prop.x.value = "$data['#{xDomain[1]}'] * #{step} + #{-xMin * step}"
+					@point.prop.x.value = "$data['#{xDomain[1]}'] * #{step} + #{-xMin * step}" if @prop.pointData.value
 					@yAxis.prop.x.value = "#{-xMin * step}"
+			else
+				@xAxis.prop.range.value = [0, 10]
+				@point.prop.x.value = 0
+				@yAxis.prop.x.value = 0
+		setYAxis: (value) ->
+			value = null if value is 'null'
+			@prop.yAxis.value = value
+			@yAxis.prop.domain.value = value
 
-
-			if @prop.yAxis.value
-				yDomain = @prop.yAxis.value
+			if value
+				yDomain = value
 				if _.isType yDomain, 'String'
 					yDomain = JSON.parse yDomain
 
@@ -149,14 +157,23 @@
 				yMin = Math.min.apply @, yColumn
 				if yMin >= 0
 					@yAxis.prop.range.value = [yMax, 0]
-					@point.prop.y.value = "$data['#{yDomain[1]}'] / #{yMax} * #{@prop.height.value}"
+					@point.prop.y.value = "$data['#{yDomain[1]}'] / #{yMax} * #{@prop.height.value}" if @prop.pointData.value
 					@xAxis.prop.y.value = 0
 				else
 					@yAxis.prop.range.value = [yMax, yMin]
 					step = @prop.height.value / (yMax - yMin)
-					@point.prop.y.value = "$data['#{yDomain[1]}'] * #{step} + #{-yMin * step}"
+					@point.prop.y.value = "$data['#{yDomain[1]}'] * #{step} + #{-yMin * step}" if @prop.pointData.value
 					@xAxis.prop.y.value = "#{-yMin * step}"
+			else
+				@yAxis.prop.range.value = [10, 0]
+				@point.prop.y.value = 0
+				@xAxis.prop.y.value = 0
 
+		updateChildren: () ->
+			@setWidth @prop.width.value
+			@setHeight @prop.height.value
+			@setXAxis @prop.xAxis.value
+			@setYAxis @prop.yAxis.value
 			
 			Renderer.renderAll()
 

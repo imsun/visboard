@@ -163,7 +163,7 @@
 					else if _.isType propValue, 'String'
 						propValue = "'#{propValue}'"
 					
-					value.code = "function($data, $index, $parent) {\n    return #{propValue}\n}"
+					value.code = "function($data, $index, $domain, $parent) {\n    return #{propValue}\n}"
 					value.enableCode = false
 
 	class Root extends Primitive

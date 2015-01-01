@@ -45,7 +45,7 @@ var __hasProp = {}.hasOwnProperty,
           listener: function(value) {
             self.prop.pointData.value = value;
             self.point.bind(value);
-            return self.updateChildren();
+            return Renderer.renderAll();
           }
         },
         xAxis: {
@@ -73,12 +73,8 @@ var __hasProp = {}.hasOwnProperty,
             return result;
           },
           listener: function(value) {
-            if (value === 'null') {
-              self.prop.xAxis.value = null;
-            } else {
-              self.prop.xAxis.value = value;
-            }
-            return self.updateChildren();
+            self.setXAxis(value);
+            return Renderer.renderAll();
           }
         },
         yAxis: {
@@ -106,12 +102,8 @@ var __hasProp = {}.hasOwnProperty,
             return result;
           },
           listener: function(value) {
-            if (value === 'null') {
-              self.prop.yAxis.value = null;
-            } else {
-              self.prop.yAxis.value = value;
-            }
-            return self.updateChildren();
+            self.setYAxis(value);
+            return Renderer.renderAll();
           }
         },
         width: {
@@ -119,8 +111,8 @@ var __hasProp = {}.hasOwnProperty,
           type: 'number',
           value: 300,
           listener: function(value) {
-            self.prop.width.value = value;
-            return self.updateChildren();
+            self.setWidth(value);
+            return Renderer.renderAll();
           }
         },
         height: {
@@ -128,12 +120,12 @@ var __hasProp = {}.hasOwnProperty,
           type: 'number',
           value: 150,
           listener: function(value) {
-            self.prop.height.value = value;
-            return self.updateChildren();
+            self.setHeight(value);
+            return Renderer.renderAll();
           }
         }
       });
-      this.setCode(['pointData']);
+      this.setCode(['pointData', 'xAxis', 'yAxis']);
       this.updateChildren();
       Primitives.tree.changeParent(this.xAxis, this.id);
       Primitives.tree.changeParent(this.yAxis, this.id);
@@ -146,15 +138,26 @@ var __hasProp = {}.hasOwnProperty,
       return this.name = name || 'Scatterplot ' + Scatterplot.counter++;
     };
 
-    Scatterplot.prototype.updateChildren = function() {
-      var step, xColumn, xDomain, xMax, xMin, yColumn, yDomain, yMax, yMin;
-      this.xAxis.prop.length.value = this.prop.width.value;
-      this.yAxis.prop.length.value = this.prop.height.value;
-      this.yAxis.prop.y.value = this.prop.height.value;
-      this.xAxis.prop.domain.value = this.prop.xAxis.value;
-      this.yAxis.prop.domain.value = this.prop.yAxis.value;
-      if (this.prop.xAxis.value) {
-        xDomain = this.prop.xAxis.value;
+    Scatterplot.prototype.setWidth = function(value) {
+      this.prop.width.value = value;
+      return this.xAxis.prop.length.value = value;
+    };
+
+    Scatterplot.prototype.setHeight = function(value) {
+      this.prop.height.value = value;
+      this.yAxis.prop.length.value = value;
+      return this.yAxis.prop.y.value = value;
+    };
+
+    Scatterplot.prototype.setXAxis = function(value) {
+      var step, xColumn, xDomain, xMax, xMin;
+      if (value === 'null') {
+        value = null;
+      }
+      this.prop.xAxis.value = value;
+      this.xAxis.prop.domain.value = value;
+      if (value) {
+        xDomain = value;
         if (_.isType(xDomain, 'String')) {
           xDomain = JSON.parse(xDomain);
         }
@@ -171,17 +174,34 @@ var __hasProp = {}.hasOwnProperty,
         xMin = Math.min.apply(this, xColumn);
         if (xMin >= 0) {
           this.xAxis.prop.range.value = [0, xMax];
-          this.point.prop.x.value = "$data['" + xDomain[1] + "'] / " + xMax + " * " + this.prop.width.value;
-          this.yAxis.prop.x.value = 0;
+          if (this.prop.pointData.value) {
+            this.point.prop.x.value = "$data['" + xDomain[1] + "'] / " + xMax + " * " + this.prop.width.value;
+          }
+          return this.yAxis.prop.x.value = 0;
         } else {
           this.xAxis.prop.range.value = [xMin, xMax];
           step = this.prop.width.value / (xMax - xMin);
-          this.point.prop.x.value = "$data['" + xDomain[1] + "'] * " + step + " + " + (-xMin * step);
-          this.yAxis.prop.x.value = "" + (-xMin * step);
+          if (this.prop.pointData.value) {
+            this.point.prop.x.value = "$data['" + xDomain[1] + "'] * " + step + " + " + (-xMin * step);
+          }
+          return this.yAxis.prop.x.value = "" + (-xMin * step);
         }
+      } else {
+        this.xAxis.prop.range.value = [0, 10];
+        this.point.prop.x.value = 0;
+        return this.yAxis.prop.x.value = 0;
       }
-      if (this.prop.yAxis.value) {
-        yDomain = this.prop.yAxis.value;
+    };
+
+    Scatterplot.prototype.setYAxis = function(value) {
+      var step, yColumn, yDomain, yMax, yMin;
+      if (value === 'null') {
+        value = null;
+      }
+      this.prop.yAxis.value = value;
+      this.yAxis.prop.domain.value = value;
+      if (value) {
+        yDomain = value;
         if (_.isType(yDomain, 'String')) {
           yDomain = JSON.parse(yDomain);
         }
@@ -198,15 +218,30 @@ var __hasProp = {}.hasOwnProperty,
         yMin = Math.min.apply(this, yColumn);
         if (yMin >= 0) {
           this.yAxis.prop.range.value = [yMax, 0];
-          this.point.prop.y.value = "$data['" + yDomain[1] + "'] / " + yMax + " * " + this.prop.height.value;
-          this.xAxis.prop.y.value = 0;
+          if (this.prop.pointData.value) {
+            this.point.prop.y.value = "$data['" + yDomain[1] + "'] / " + yMax + " * " + this.prop.height.value;
+          }
+          return this.xAxis.prop.y.value = 0;
         } else {
           this.yAxis.prop.range.value = [yMax, yMin];
           step = this.prop.height.value / (yMax - yMin);
-          this.point.prop.y.value = "$data['" + yDomain[1] + "'] * " + step + " + " + (-yMin * step);
-          this.xAxis.prop.y.value = "" + (-yMin * step);
+          if (this.prop.pointData.value) {
+            this.point.prop.y.value = "$data['" + yDomain[1] + "'] * " + step + " + " + (-yMin * step);
+          }
+          return this.xAxis.prop.y.value = "" + (-yMin * step);
         }
+      } else {
+        this.yAxis.prop.range.value = [10, 0];
+        this.point.prop.y.value = 0;
+        return this.xAxis.prop.y.value = 0;
       }
+    };
+
+    Scatterplot.prototype.updateChildren = function() {
+      this.setWidth(this.prop.width.value);
+      this.setHeight(this.prop.height.value);
+      this.setXAxis(this.prop.xAxis.value);
+      this.setYAxis(this.prop.yAxis.value);
       return Renderer.renderAll();
     };
 

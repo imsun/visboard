@@ -216,7 +216,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
           } else if (_.isType(propValue, 'String')) {
             propValue = "'" + propValue + "'";
           }
-          value.code = "function($data, $index, $parent) {\n    return " + propValue + "\n}";
+          value.code = "function($data, $index, $domain, $parent) {\n    return " + propValue + "\n}";
           _results.push(value.enableCode = false);
         } else {
           _results.push(void 0);
