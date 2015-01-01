@@ -249,7 +249,15 @@ ul {
 	stroke: steelblue;
 	stroke-width: 1.5px;
 }
- 
+.node.filter circle {
+	fill: green;
+	stroke: green;
+}
+.node.cluster circle {
+	fill: blue;
+	stroke: blue;
+}
+
 .node {
 	font: 12px sans-serif;
 	cursor: pointer;

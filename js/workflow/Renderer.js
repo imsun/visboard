@@ -78,7 +78,6 @@
               } catch (_error) {
                 e = _error;
                 console.log(e);
-                alert(e);
               }
             }
           }
@@ -90,7 +89,7 @@
           return _runner(propValue, value.enableCode);
         }
       };
-      runner = function($data, $index, $parent) {
+      runner = function($data, $index, $domain, $parent) {
         var _primitive;
         _primitive = {
           id: _.cid(),
@@ -117,24 +116,36 @@
         Renderer.primitives[_primitive.id] = _primitive;
         return _primitive;
       };
-      dataName = evalProp(prop.data, null, null, $domain, $parent);
+      dataName = evalProp(prop.data, null, null, null, $parent);
       data = Data.list[dataName];
-      if ((prop.domain != null) && (prop.domain.value != null)) {
-        _domain = prop.domain.value;
-        if (_.isType(_domain, 'String')) {
-          _domain = JSON.parse(_domain);
-        }
-        $domain = Data.list[_domain[0]].map(function(row) {
-          return row[_domain[1]];
-        });
-      }
       if (data) {
         items = data.map(function(row, index) {
-          return runner(row, index, $parent);
+          var $domain, _domain;
+          $domain = null;
+          if ((prop.domain != null) && ((prop.domain.value != null) || prop.domain.enableCode)) {
+            if (_.isType(prop.domain.value, 'String')) {
+              prop.domain.value = JSON.parse(prop.domain.value);
+            }
+            _domain = evalProp(prop.domain, row, index, null, $parent);
+            $domain = Data.list[_domain[0]].map(function(row) {
+              return row[_domain[1]];
+            });
+          }
+          return runner(row, index, $domain, $parent);
         });
         return items;
       } else {
-        item = runner(null, null, $parent);
+        $domain = null;
+        if ((prop.domain != null) && ((prop.domain.value != null) || prop.domain.enableCode)) {
+          if (_.isType(prop.domain.value, 'String')) {
+            prop.domain.value = JSON.parse(prop.domain.value);
+          }
+          _domain = evalProp(prop.domain, null, null, null, $parent);
+          $domain = Data.list[_domain[0]].map(function(row) {
+            return row[_domain[1]];
+          });
+        }
+        item = runner(null, null, $domain, $parent);
         return [item];
       }
     },

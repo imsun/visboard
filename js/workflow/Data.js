@@ -97,7 +97,7 @@
       dataNode = {
         id: _.cid(),
         name: name,
-        type: 'data',
+        type: 'filter',
         parent: null,
         children: [],
         prop: {
@@ -152,57 +152,209 @@
                 parent = Data.tree;
               }
               parent.push(dataNode);
-              if (typeof DataPool !== "undefined" && DataPool !== null) {
-                return DataPool.display(_.copy(Data.tree));
-              }
+              return dataNode.update();
             }
           },
-          columns: {
-            name: 'Columns',
+          select: {
+            name: 'Select',
             type: 'text',
             value: null,
             listener: function(value) {
-              var child, i, input, inputName, output, _i, _len, _ref;
-              _ref = dataNode.children;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                child = _ref[_i];
-                delete Data.list[child.name];
+              if (value === 'null') {
+                value = null;
               }
-              dataNode.children = [];
-              dataNode.prop.columns.value = value;
-              inputName = dataNode.prop.input.value;
-              if (!value || !inputName) {
-                DataPool.display(Data.tree);
-                return;
-              }
-              input = Data.list[inputName];
-              if (value !== '*') {
-                value = value.split(',');
-              }
-              output = input.map(function(row) {
-                var result;
-                if (value === '*') {
-                  return _.copy(row);
-                } else {
-                  result = {};
-                  value.forEach(function(key) {
-                    return result[key] = _.copy(row[key]);
-                  });
-                  return result;
-                }
-              });
-              i = 0;
-              while (Data.list[inputName + '.' + i]) {
-                i++;
-              }
-              return new Data(inputName + '.' + i, output, dataNode.name);
+              dataNode.prop.select.value = value;
+              return dataNode.update();
+            }
+          },
+          rules: {
+            name: 'Rules',
+            type: 'text',
+            value: null,
+            listener: function(value) {
+              dataNode.prop.rules.value = value;
+              return dataNode.update();
             }
           }
+        },
+        update: function() {
+          var child, i, input, inputName, output, rules, select, _i, _len, _ref;
+          _ref = dataNode.children;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            child = _ref[_i];
+            delete Data.list[child.name];
+          }
+          dataNode.children = [];
+          inputName = dataNode.prop.input.value;
+          select = dataNode.prop.select.value;
+          rules = dataNode.prop.rules.value;
+          if (!select || !inputName) {
+            DataPool.display(Data.tree);
+            return;
+          }
+          input = Data.list[inputName];
+          if (select !== '*') {
+            select = select.split(',');
+          }
+          output = [];
+          input.forEach(function(row, index) {
+            var fn, result;
+            if (rules) {
+              fn = eval("(function ($data, $index) { return " + rules + "})");
+              if (!fn(row, index)) {
+                return;
+              }
+            }
+            if (select === '*') {
+              return output.push(_.copy(row));
+            } else {
+              result = {};
+              select.forEach(function(key) {
+                return result[key] = _.copy(row[key]);
+              });
+              return output.push(result);
+            }
+          });
+          i = 0;
+          while (Data.list[inputName + '.' + i]) {
+            i++;
+          }
+          return new Data(inputName + '.' + i, output, dataNode.name);
         }
       };
       Data.tree.push(dataNode);
       if (typeof DataPool !== "undefined" && DataPool !== null) {
-        DataPool.display(_.copy(Data.tree));
+        DataPool.display(Data.tree);
+      }
+      if (typeof DataPanel !== "undefined" && DataPanel !== null) {
+        DataPanel.display(dataNode);
+      }
+    }
+
+    return _Class;
+
+  })();
+  Data.Cluster = (function() {
+    _Class.counter = 0;
+
+    function _Class() {
+      var dataNode, name, self;
+      self = this;
+      name = 'cluster ' + Data.Cluster.counter++;
+      dataNode = {
+        id: _.cid(),
+        name: name,
+        type: 'cluster',
+        parent: null,
+        children: [],
+        prop: {
+          title: {
+            name: 'Cluster',
+            type: 'title'
+          },
+          name: {
+            name: 'Name',
+            type: 'label',
+            value: name
+          },
+          input: {
+            name: 'Input',
+            type: 'select',
+            value: null,
+            set: function() {
+              var key, result, value, _ref;
+              result = [
+                {
+                  name: 'none',
+                  value: null
+                }
+              ];
+              _ref = Data.list;
+              for (key in _ref) {
+                value = _ref[key];
+                result.push({
+                  name: key,
+                  value: key
+                });
+              }
+              return result;
+            },
+            listener: function(value) {
+              var index, oldParent, parent;
+              if (value === 'null') {
+                value = null;
+              }
+              if (dataNode.parent != null) {
+                oldParent = Data.getNode(dataNode.parent, Data.tree).children;
+              } else {
+                oldParent = Data.tree;
+              }
+              index = oldParent.indexOf(dataNode);
+              oldParent.splice(index, 1);
+              dataNode.parent = value;
+              dataNode.prop.input.value = value;
+              if (value != null) {
+                parent = Data.getNode(value, Data.tree).children;
+              } else {
+                parent = Data.tree;
+              }
+              parent.push(dataNode);
+              return dataNode.update();
+            }
+          },
+          key: {
+            name: 'Key',
+            type: 'text',
+            value: null,
+            listener: function(value) {
+              if (value === 'null') {
+                value = null;
+              }
+              dataNode.prop.key.value = value;
+              return dataNode.update();
+            }
+          }
+        },
+        update: function() {
+          var child, group, index, input, inputName, item, key, keys, _i, _len, _ref, _results;
+          _ref = dataNode.children;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            child = _ref[_i];
+            delete Data.list[child.name];
+          }
+          dataNode.children = [];
+          inputName = dataNode.prop.input.value;
+          key = dataNode.prop.key.value;
+          if (!key || !inputName) {
+            DataPool.display(Data.tree);
+            return;
+          }
+          input = Data.list[inputName];
+          group = {};
+          input.forEach(function(row, index) {
+            if (!group[row[key]]) {
+              group[row[key]] = [];
+            }
+            return group[row[key]].push(_.copy(row));
+          });
+          keys = Object.keys(group).map(function(row) {
+            var temp;
+            temp = {};
+            temp[key] = row;
+            return temp;
+          });
+          new Data(inputName + '.' + key, keys, dataNode.name);
+          _results = [];
+          for (index in group) {
+            item = group[index];
+            _results.push(new Data(inputName + '.' + key + '.' + index, item, dataNode.name));
+          }
+          return _results;
+        }
+      };
+      Data.tree.push(dataNode);
+      if (typeof DataPool !== "undefined" && DataPool !== null) {
+        DataPool.display(Data.tree);
       }
       if (typeof DataPanel !== "undefined" && DataPanel !== null) {
         DataPanel.display(dataNode);

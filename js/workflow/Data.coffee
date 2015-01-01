@@ -54,6 +54,7 @@
 			DataPool.display _.copy Data.tree if DataPool?
 			DataPanel.display dataNode if DataPanel?
 
+	# Filter and Cluster need to be reduced
 	Data.Filter = class
 		@counter: 0
 		constructor: () ->
@@ -62,7 +63,7 @@
 			dataNode =
 				id: _.cid()
 				name: name
-				type: 'data'
+				type: 'filter'
 				parent: null
 				children: []
 				prop:
@@ -106,43 +107,159 @@
 								parent = Data.tree
 							parent.push dataNode
 
-							DataPool.display _.copy Data.tree if DataPool?
-					columns:
-						name: 'Columns'
+							dataNode.update()
+					select:
+						name: 'Select'
 						type: 'text'
 						value: null
 						listener: (value) ->
-							for child in dataNode.children
-								delete Data.list[child.name]
-							dataNode.children = []
-							dataNode.prop.columns.value = value
-							inputName = dataNode.prop.input.value
-							if not value or not inputName
-								DataPool.display Data.tree
+							value = null if value is 'null'
+							dataNode.prop.select.value = value
+							dataNode.update()
+					rules:
+						name: 'Rules'
+						type: 'text'
+						value: null
+						listener: (value) ->
+							dataNode.prop.rules.value = value
+							dataNode.update()
+				update: () ->
+					for child in dataNode.children
+						delete Data.list[child.name]
+					dataNode.children = []
+
+					inputName = dataNode.prop.input.value
+					select = dataNode.prop.select.value
+					rules = dataNode.prop.rules.value
+
+					if not select or not inputName
+						DataPool.display Data.tree
+						return
+					input = Data.list[inputName]
+
+					if select isnt '*'
+						select = select.split ','
+
+					output = []
+					input.forEach (row, index) ->
+						if rules
+							fn = eval "(function ($data, $index) { return #{rules}})"
+							if not fn row, index
 								return
-							input = Data.list[inputName]
-							if value isnt '*'
-								value = value.split ','
 
-							output = input.map (row) ->
-								if value is '*'
-									return _.copy row
-								else
-									result = {}
-									value.forEach (key) ->
-										result[key] = _.copy row[key]
-									return result
-							i = 0
-							i++ while Data.list[inputName + '.' + i]
-							new Data inputName + '.' + i, output, dataNode.name
-
+						if select is '*'
+							output.push (_.copy row)
+						else
+							result = {}
+							select.forEach (key) ->
+								result[key] = _.copy row[key]
+							output.push result
+					i = 0
+					i++ while Data.list[inputName + '.' + i]
+					new Data inputName + '.' + i, output, dataNode.name
 
 			Data.tree.push dataNode
 
-			# d3.tree() will remove `children` from tree's nodes
-			DataPool.display _.copy Data.tree if DataPool?
+			DataPool.display Data.tree if DataPool?
 			DataPanel.display dataNode if DataPanel?
-	
+
+	Data.Cluster = class
+		@counter: 0
+		constructor: () ->
+			self = @
+			name = 'cluster ' + Data.Cluster.counter++
+			dataNode =
+				id: _.cid()
+				name: name
+				type: 'cluster'
+				parent: null
+				children: []
+				prop:
+					title:
+						name: 'Cluster'
+						type: 'title'
+					name:
+						name: 'Name'
+						type: 'label'
+						value: name
+					input:
+						name: 'Input'
+						type: 'select'
+						value: null
+						set: () ->
+							result = [
+								name: 'none'
+								value: null
+							]
+							for key, value of Data.list
+								result.push
+									name: key
+									value: key
+							return result
+						listener: (value) ->
+							value = null if value is 'null'
+							if dataNode.parent?
+								oldParent = Data.getNode dataNode.parent, Data.tree
+												.children
+							else
+								oldParent = Data.tree
+							index = oldParent.indexOf dataNode
+							oldParent.splice index, 1
+							dataNode.parent = value
+							dataNode.prop.input.value = value
+
+							if value?
+								parent = Data.getNode value, Data.tree
+											.children
+							else
+								parent = Data.tree
+							parent.push dataNode
+
+							dataNode.update()
+					key:
+						name: 'Key'
+						type: 'text'
+						value: null
+						listener: (value) ->
+							value = null if value is 'null'
+							dataNode.prop.key.value = value
+							dataNode.update()
+				update: () ->
+					for child in dataNode.children
+						delete Data.list[child.name]
+					dataNode.children = []
+
+					inputName = dataNode.prop.input.value
+					key = dataNode.prop.key.value
+
+					if not key or not inputName
+						DataPool.display Data.tree
+						return
+					input = Data.list[inputName]
+
+					group = {}
+					input.forEach (row, index) ->
+						if not group[row[key]]
+							group[row[key]] = []
+						group[row[key]].push (_.copy row)
+					keys = Object.keys group
+							.map (row) ->
+								temp = {}
+								temp[key] = row
+								return temp
+
+					# TO DO
+					# 	may exist name conflict
+					new Data inputName + '.' + key, keys, dataNode.name
+
+					for index, item of group
+						new Data inputName + '.' + key + '.' + index, item, dataNode.name
+
+			Data.tree.push dataNode
+
+			DataPool.display Data.tree if DataPool?
+			DataPanel.display dataNode if DataPanel?
+
 	if exports?
 		module.exports = Data
 	else

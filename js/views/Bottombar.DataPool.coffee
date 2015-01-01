@@ -13,6 +13,9 @@
 
 		display: (dataTrees) ->
 			@clear()
+
+			dataTrees = _.copy dataTrees
+
 			style = getComputedStyle @domElement
 			width = parseFloat (style.getPropertyValue 'width')
 			fullHeight = parseFloat (style.getPropertyValue 'height')
@@ -51,7 +54,13 @@
 						.data nodes
 						.enter()
 						.append 'g'
-						.attr 'class', 'node'
+						.attr 'class', (d, i) ->
+							if d.type is 'filter'
+								return 'node filter'
+							else if d.type is 'cluster'
+								return 'node cluster'
+
+							return 'node'
 						.attr 'transform', (d) ->
 							return "translate(#{d.y}, #{d.x})"
 						.on 'click', (d, i) ->

@@ -27,6 +27,7 @@ var __hasProp = {}.hasOwnProperty,
     DataPool.prototype.display = function(dataTrees) {
       var Tree, dataTree, diagonal, fullHeight, group, height, i, link, links, node, nodes, style, svg, width, _i, _len, _results;
       this.clear();
+      dataTrees = _.copy(dataTrees);
       style = getComputedStyle(this.domElement);
       width = parseFloat(style.getPropertyValue('width'));
       fullHeight = parseFloat(style.getPropertyValue('height'));
@@ -49,7 +50,14 @@ var __hasProp = {}.hasOwnProperty,
         links = Tree.links(nodes);
         group = svg.append('g').attr('transform', "translate(40, " + (i * height) + ")");
         link = group.selectAll('.link').data(links).enter().append('path').attr('class', 'link').attr('d', diagonal);
-        node = group.selectAll('.node').data(nodes).enter().append('g').attr('class', 'node').attr('transform', function(d) {
+        node = group.selectAll('.node').data(nodes).enter().append('g').attr('class', function(d, i) {
+          if (d.type === 'filter') {
+            return 'node filter';
+          } else if (d.type === 'cluster') {
+            return 'node cluster';
+          }
+          return 'node';
+        }).attr('transform', function(d) {
           return "translate(" + d.y + ", " + d.x + ")";
         }).on('click', function(d, i) {
           DataPool.select(this);

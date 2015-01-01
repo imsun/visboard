@@ -66,6 +66,9 @@
 		newFilter = new Menubar.MenuItem dataMenu, 'newFilter', 'Filter'
 		newFilter.domElement.addEventListener 'click', (e) ->
 			new Data.Filter
+		newCluster = new Menubar.MenuItem dataMenu, 'newCluster', 'Cluster'
+		newCluster.domElement.addEventListener 'click', (e) ->
+			new Data.Cluster
 
 		primitiveMenu = new Menubar.Menu menubar, 'primitive', 'Primitive'
 
