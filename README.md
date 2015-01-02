@@ -3,6 +3,10 @@ Visboard
 
 可编程的可视化工具。
 
+[Demo](http://imsun.net/project/visboard/)
+
+![visboard](http://imsun.gitcafe.com/img/visboard.png)
+
 ## Pipeline
 
 Data -> Template -> Primitive -> Renderer -> Canvas
