@@ -124,7 +124,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
           type: 'boolean',
           value: true,
           listener: function(value) {
-            console.log(value);
             self.prop.visiable.value = value;
             return Renderer.renderAll();
           }

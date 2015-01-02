@@ -98,7 +98,6 @@
 					type: 'boolean'
 					value: true
 					listener: (value) ->
-						console.log value
 						self.prop.visiable.value = value
 						Renderer.renderAll()
 
