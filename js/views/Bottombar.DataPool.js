@@ -51,12 +51,7 @@ var __hasProp = {}.hasOwnProperty,
         group = svg.append('g').attr('transform', "translate(40, " + (i * height) + ")");
         link = group.selectAll('.link').data(links).enter().append('path').attr('class', 'link').attr('d', diagonal);
         node = group.selectAll('.node').data(nodes).enter().append('g').attr('class', function(d, i) {
-          if (d.type === 'filter') {
-            return 'node filter';
-          } else if (d.type === 'cluster') {
-            return 'node cluster';
-          }
-          return 'node';
+          return 'node ' + d.type;
         }).attr('transform', function(d) {
           return "translate(" + d.y + ", " + d.x + ")";
         }).on('click', function(d, i) {

@@ -241,13 +241,9 @@ ul {
 	font-size: 11px;
 }
 
-.node.selected circle {
-	fill: #f00;
-}
-.node circle {
-	fill: #fff;
-	stroke: steelblue;
-	stroke-width: 1.5px;
+.node {
+	font: 12px sans-serif;
+	cursor: pointer;
 }
 .node.filter circle {
 	fill: green;
@@ -257,12 +253,18 @@ ul {
 	fill: blue;
 	stroke: blue;
 }
-
-.node {
-	font: 12px sans-serif;
-	cursor: pointer;
+.node.scale circle{
+	fill: #0ff;
+	stroke: #0ff;
 }
- 
+.node.selected circle {
+	fill: #f00;
+}
+.node circle {
+	fill: #fff;
+	stroke: steelblue;
+	stroke-width: 1.5px;
+}
 .link {
 	fill: none;
 	stroke: #ccc;

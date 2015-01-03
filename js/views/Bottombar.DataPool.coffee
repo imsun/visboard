@@ -55,12 +55,7 @@
 						.enter()
 						.append 'g'
 						.attr 'class', (d, i) ->
-							if d.type is 'filter'
-								return 'node filter'
-							else if d.type is 'cluster'
-								return 'node cluster'
-
-							return 'node'
+							return 'node ' + d.type
 						.attr 'transform', (d) ->
 							return "translate(#{d.y}, #{d.x})"
 						.on 'click', (d, i) ->

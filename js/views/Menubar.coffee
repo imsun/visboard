@@ -69,6 +69,9 @@
 		newCluster = new Menubar.MenuItem dataMenu, 'newCluster', 'Cluster'
 		newCluster.domElement.addEventListener 'click', (e) ->
 			new Data.Cluster
+		newScale = new Menubar.MenuItem dataMenu, 'newScale', 'Scale'
+		newScale.domElement.addEventListener 'click', (e) ->
+			new Data.Scale
 
 		primitiveMenu = new Menubar.Menu menubar, 'primitive', 'Primitive'
 
