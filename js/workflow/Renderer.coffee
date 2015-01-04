@@ -43,6 +43,10 @@
 					propValue = value.value
 				
 				_runner = (value, enableCode) ->
+					$Max = (list) ->
+						return Math.max.apply @, list
+					$Min = (list) ->
+						return Math.min.apply @, list 
 					if _.isType value, 'String'
 						if not enableCode
 							try
@@ -59,7 +63,8 @@
 					return value
 
 				if _.isType propValue, 'Array'
-					return propValue.map _runner
+					return propValue.map (_value) ->
+						return _runner _value, value.enableCode
 				else
 					return _runner propValue, value.enableCode
 

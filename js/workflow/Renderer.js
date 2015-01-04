@@ -63,7 +63,13 @@
           propValue = value.value;
         }
         _runner = function(value, enableCode) {
-          var e, fn;
+          var $Max, $Min, e, fn;
+          $Max = function(list) {
+            return Math.max.apply(this, list);
+          };
+          $Min = function(list) {
+            return Math.min.apply(this, list);
+          };
           if (_.isType(value, 'String')) {
             if (!enableCode) {
               try {
@@ -84,7 +90,9 @@
           return value;
         };
         if (_.isType(propValue, 'Array')) {
-          return propValue.map(_runner);
+          return propValue.map(function(_value) {
+            return _runner(_value, value.enableCode);
+          });
         } else {
           return _runner(propValue, value.enableCode);
         }
