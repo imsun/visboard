@@ -179,11 +179,18 @@ ul {
 	width: 120px;
 }
 .prop-range input {
-	width: 40px;
+	width: 50px;
 }
 .prop-code {
 	float: right;
 	margin-left: 5px;
+}
+
+.data-panel .prop-value {
+	width: 180px;
+}
+.data-panel .prop-range input {
+	width: 80px;
 }
 
 .bottombar {
