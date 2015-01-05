@@ -142,27 +142,7 @@ var __hasProp = {}.hasOwnProperty,
               return result;
             },
             listener: function(value) {
-              var index, oldParent, parent;
-              if (value === 'null') {
-                value = null;
-              }
-              if (dataNode.parent != null) {
-                oldParent = Data.getNode(dataNode.parent, Data.tree).children;
-              } else {
-                oldParent = Data.tree;
-              }
-              index = oldParent.indexOf(dataNode);
-              oldParent.splice(index, 1);
-              dataNode.parent = value;
-              dataNode.prop.input.value = value;
-              if (value != null) {
-                parent = Data.getNode(value, Data.tree).children;
-              } else {
-                parent = Data.tree;
-              }
-              parent.push(dataNode);
-              console.log(self);
-              return self.update();
+              return self.setInput(value);
             }
           }
         }
@@ -186,6 +166,30 @@ var __hasProp = {}.hasOwnProperty,
         delete Data.list[child.name];
       }
       return this.dataNode.children = [];
+    };
+
+    _Class.prototype.setInput = function(value) {
+      var index, oldParent, parent;
+      if (value === 'null') {
+        value = null;
+      }
+      if (this.dataNode.parent != null) {
+        oldParent = Data.getNode(this.dataNode.parent, Data.tree).children;
+      } else {
+        oldParent = Data.tree;
+      }
+      index = oldParent.indexOf(this.dataNode);
+      oldParent.splice(index, 1);
+      this.dataNode.parent = value;
+      this.dataNode.prop.input.value = value;
+      if (value != null) {
+        parent = Data.getNode(value, Data.tree).children;
+      } else {
+        parent = Data.tree;
+      }
+      parent.push(this.dataNode);
+      console.log(this);
+      return this.update();
     };
 
     _Class.prototype.init = function() {};
@@ -361,22 +365,40 @@ var __hasProp = {}.hasOwnProperty,
       this.dataNode.name = this.dataNode.prop.name.value = this.name = 'scale' + Data.Scale.counter++;
       this.dataNode.prop.title.name = 'Scale';
       this.dataNode.type = 'scale';
+      this.dataNode.prop.input.listener;
       Data.Scale.list.push(this.dataNode);
       return _.extend(this.dataNode.prop, {
         domain: {
           name: 'Domain',
-          type: 'range',
-          value: [null, null],
+          type: 'select',
+          value: null,
+          set: function() {
+            var result;
+            return result = [
+              {
+                name: 'none',
+                value: null
+              }
+            ];
+          },
           listener: function(value) {
             return self.dataNode.prop.domain.value = value;
           }
         },
-        range: {
-          name: 'Range',
+        from: {
+          name: 'From',
           type: 'range',
-          value: [null, null],
+          value: ['$Min($domain)', '$Max($domain)'],
           listener: function(value) {
-            return self.dataNode.prop.range.value = value;
+            return self.dataNode.prop.from.value = value;
+          }
+        },
+        to: {
+          name: 'To',
+          type: 'range',
+          value: [0, 100],
+          listener: function(value) {
+            return self.dataNode.prop.to.value = value;
           }
         }
       });
@@ -386,6 +408,34 @@ var __hasProp = {}.hasOwnProperty,
       _Class.__super__.update.call(this);
       if (typeof DataPool !== "undefined" && DataPool !== null) {
         return DataPool.display(_.copy(Data.tree));
+      }
+    };
+
+    _Class.prototype.setInput = function(value) {
+      if (value === 'null') {
+        value = null;
+      }
+      _Class.__super__.setInput.call(this, value);
+      this.dataNode.prop.domain.set = function() {
+        var result;
+        result = [
+          {
+            name: 'none',
+            value: null
+          }
+        ];
+        if (value != null) {
+          Object.keys(Data.list[value][0]).forEach(function(key) {
+            return result.push({
+              name: key,
+              value: key
+            });
+          });
+        }
+        return result;
+      };
+      if (typeof DataPanel !== "undefined" && DataPanel !== null) {
+        return DataPanel.display(this.dataNode);
       }
     };
 

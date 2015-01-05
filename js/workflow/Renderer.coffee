@@ -27,7 +27,7 @@
 			for child in Renderer.primitives[id].children
 				# console.log child
 				Renderer._render child.id, child.pid, list, child.dataRefer
-			
+
 		clear: () ->
 			if $('#viewport')
 				$('#viewport').innerHTML = ''
@@ -41,12 +41,12 @@
 					propValue = value.code
 				else
 					propValue = value.value
-				
+
 				_runner = (value, enableCode) ->
 					$Max = (list) ->
 						return Math.max.apply @, list
 					$Min = (list) ->
-						return Math.min.apply @, list 
+						return Math.min.apply @, list
 					if _.isType value, 'String'
 						if not enableCode
 							try

@@ -93,25 +93,7 @@
 									value: key
 							return result
 						listener: (value) ->
-							value = null if value is 'null'
-							if dataNode.parent?
-								oldParent = Data.getNode dataNode.parent, Data.tree
-												.children
-							else
-								oldParent = Data.tree
-							index = oldParent.indexOf dataNode
-							oldParent.splice index, 1
-							dataNode.parent = value
-							dataNode.prop.input.value = value
-
-							if value?
-								parent = Data.getNode value, Data.tree
-											.children
-							else
-								parent = Data.tree
-							parent.push dataNode
-							console.log self
-							self.update()
+							self.setInput value
 
 			@dataNode = dataNode
 			@init()
@@ -123,6 +105,26 @@
 			for child in @dataNode.children
 				delete Data.list[child.name]
 			@dataNode.children = []
+		setInput: (value) ->
+			value = null if value is 'null'
+			if @dataNode.parent?
+				oldParent = Data.getNode @dataNode.parent, Data.tree
+								.children
+			else
+				oldParent = Data.tree
+			index = oldParent.indexOf @dataNode
+			oldParent.splice index, 1
+			@dataNode.parent = value
+			@dataNode.prop.input.value = value
+
+			if value?
+				parent = Data.getNode value, Data.tree
+							.children
+			else
+				parent = Data.tree
+			parent.push @dataNode
+			console.log @
+			@update()
 
 		init: () ->
 
@@ -244,25 +246,52 @@
 			@dataNode.name = @dataNode.prop.name.value = @name = 'scale' + Data.Scale.counter++
 			@dataNode.prop.title.name = 'Scale'
 			@dataNode.type = 'scale'
+			@dataNode.prop.input.listener
 
 			Data.Scale.list.push @dataNode
 			_.extend @dataNode.prop,
 				domain:
 					name: 'Domain'
-					type: 'range'
-					value: [null, null]
+					type: 'select'
+					value: null
+					set: () ->
+						result = [
+							name: 'none'
+							value: null
+						]
 					listener: (value) ->
 						self.dataNode.prop.domain.value = value
-
-				range:
-					name: 'Range'
+				from:
+					name: 'From'
 					type: 'range'
-					value: [null, null]
+					value: ['$Min($domain)', '$Max($domain)']
 					listener: (value) ->
-						self.dataNode.prop.range.value = value
+						self.dataNode.prop.from.value = value
+				to:
+					name: 'To'
+					type: 'range'
+					value: [0, 100]
+					listener: (value) ->
+						self.dataNode.prop.to.value = value
 		update: () ->
 			super()
 			DataPool.display _.copy Data.tree if DataPool?
+		setInput: (value) ->
+			value = null if value is 'null'
+			super value
+			@dataNode.prop.domain.set = () ->
+				result = [
+					name: 'none'
+					value: null
+				]
+				if value?
+					Object.keys Data.list[value][0]
+						.forEach (key) ->
+							result.push
+								name: key
+								value: key
+				return result
+			DataPanel.display @dataNode if DataPanel?
 
 	if exports?
 		module.exports = Data
