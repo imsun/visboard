@@ -1,6 +1,6 @@
 (() ->
 	class Bottombar extends View
-		init: (@id, @title) ->		
+		init: (@id, @title) ->
 			@domElement = document.createElement 'div'
 			@domElement.id = @id
 			@domElement.className = 'bottombar'

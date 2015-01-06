@@ -161,7 +161,7 @@
 						propValue = JSON.stringify propValue
 					else if _.isType propValue, 'String'
 						propValue = "'#{propValue}'"
-					
+
 					value.code = "function($data, $index, $domain, $parent) {\n    return #{propValue}\n}"
 					value.enableCode = false
 
@@ -205,28 +205,28 @@
 			@type = 'axis'
 			@name = name or 'Axis ' + Axis.counter++
 			_.extend @prop,
-				domain:
-					name: 'Domain'
-					type: 'select'
-					value: null
-					set: () ->
-						result = [
-							name: 'none'
-							value: null
-						]
-						for dataName, data of Data.list
-							for key of data[0]
-								result.push
-									name: "#{dataName}.#{key}"
-									value: JSON.stringify [dataName, key]
-						return result
-					listener: (value) ->
-						if value is 'null'
-							self.prop.domain.value = null
-						else
-							self.prop.domain.value = value
-
-						Renderer.renderAll()
+				# domain:
+				# 	name: 'Domain'
+				# 	type: 'select'
+				# 	value: null
+				# 	set: () ->
+				# 		result = [
+				# 			name: 'none'
+				# 			value: null
+				# 		]
+				# 		for dataName, data of Data.list
+				# 			for key of data[0]
+				# 				result.push
+				# 					name: "#{dataName}.#{key}"
+				# 					value: JSON.stringify [dataName, key]
+				# 		return result
+				# 	listener: (value) ->
+				# 		if value is 'null'
+				# 			self.prop.domain.value = null
+				# 		else
+				# 			self.prop.domain.value = value
+				#
+				# 		Renderer.renderAll()
 				length:
 					name: 'Length'
 					type: 'number'

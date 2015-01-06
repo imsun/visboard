@@ -98,7 +98,7 @@
 		init: (name) ->
 			@type = 'scatterplot'
 			@name = name or 'Scatterplot ' + Scatterplot.counter++
-			
+
 		setWidth: (value) ->
 			@prop.width.value = value
 			@xAxis.prop.length.value = value
@@ -109,7 +109,7 @@
 		setXAxis: (value) ->
 			value = null if value is 'null'
 			@prop.xAxis.value = value
-			@xAxis.prop.domain.value = value
+			# @xAxis.prop.domain.value = value
 
 			if value
 				xDomain = value
@@ -140,7 +140,7 @@
 		setYAxis: (value) ->
 			value = null if value is 'null'
 			@prop.yAxis.value = value
-			@yAxis.prop.domain.value = value
+			# @yAxis.prop.domain.value = value
 
 			if value
 				yDomain = value
@@ -174,10 +174,10 @@
 			@setHeight @prop.height.value
 			@setXAxis @prop.xAxis.value
 			@setYAxis @prop.yAxis.value
-			
+
 			Renderer.renderAll()
 
-		
+
 	if exports?
 		root = exports
 	else
