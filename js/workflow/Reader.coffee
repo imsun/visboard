@@ -24,7 +24,20 @@
 					.trim()
 					.split '\n'
 					.map (row, index) ->
-						row.split ','
+						result = []
+						temp = ''
+						qFlag = false
+						for i in [0..row.length - 1]
+							if row[i] is ',' and not qFlag
+								result.push temp
+								temp = ''
+							else if row[i] is '"'
+								qFlag = not qFlag
+							else
+								temp += row[i]
+						# row.split ','
+						result.push temp
+						return result
 		keys = rows.shift()
 		result = []
 		rows.forEach (row) ->
@@ -41,7 +54,7 @@
 		req.open 'get', file, true
 		req.send()
 
-		
+
 	if exports?
 		module.exports = Reader
 	else
