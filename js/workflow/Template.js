@@ -139,13 +139,15 @@ var __hasProp = {}.hasOwnProperty,
 
     Scatterplot.prototype.setWidth = function(value) {
       this.prop.width.value = value;
-      return this.xAxis.prop.length.value = value;
+      this.xAxis.prop.length.value = value;
+      return this.setXAxis(this.prop.xAxis.value);
     };
 
     Scatterplot.prototype.setHeight = function(value) {
       this.prop.height.value = value;
       this.yAxis.prop.length.value = value;
-      return this.yAxis.prop.y.value = value;
+      this.yAxis.prop.y.value = value;
+      return this.setYAxis(this.prop.yAxis.value);
     };
 
     Scatterplot.prototype.setXAxis = function(value) {

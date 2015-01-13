@@ -102,10 +102,12 @@
 		setWidth: (value) ->
 			@prop.width.value = value
 			@xAxis.prop.length.value = value
+			@setXAxis @prop.xAxis.value
 		setHeight: (value) ->
 			@prop.height.value = value
 			@yAxis.prop.length.value = value
 			@yAxis.prop.y.value = value
+			@setYAxis @prop.yAxis.value
 		setXAxis: (value) ->
 			value = null if value is 'null'
 			@prop.xAxis.value = value
