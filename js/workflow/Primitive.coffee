@@ -43,6 +43,7 @@
 			self = @
 			@parent = 'root'
 			@id = 'UID' + Primitive.counter++
+			Data.add @id
 			@type = 'primitive'
 			@name = name or 'Primitive'
 			@data = null
@@ -85,7 +86,8 @@
 							name: 'none'
 							value: null
 						]
-						for key, value of Data.list
+						console.log self.id
+						for key, value of Data.get(self.id).list
 							result.push
 								name: key
 								value: key
@@ -171,7 +173,9 @@
 			delete @data
 			delete @prop.parent
 			delete @prop.data
+			Data.remove @id
 			@id = 'root'
+			Data.add @id
 			# @prop.id.value = 'root'
 			@type = 'root'
 			@name = 'Root'

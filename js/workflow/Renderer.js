@@ -124,7 +124,7 @@
         return _primitive;
       };
       dataName = evalProp(prop.data, null, null, null, $parent);
-      data = Data.list[dataName];
+      data = Data.get(primitive.id).list[dataName];
       if (data) {
         items = data.map(function(row, index) {
           var $domain, _domain;
@@ -134,7 +134,7 @@
               prop.domain.value = JSON.parse(prop.domain.value);
             }
             _domain = evalProp(prop.domain, row, index, null, $parent);
-            $domain = Data.list[_domain[0]].map(function(row) {
+            $domain = Data.get(primitive.id).list[_domain[0]].map(function(row) {
               return row[_domain[1]];
             });
           }
@@ -148,7 +148,7 @@
             prop.domain.value = JSON.parse(prop.domain.value);
           }
           _domain = evalProp(prop.domain, null, null, null, $parent);
-          $domain = Data.list[_domain[0]].map(function(row) {
+          $domain = Data.get(primitive.id).list[_domain[0]].map(function(row) {
             return row[_domain[1]];
           });
         }

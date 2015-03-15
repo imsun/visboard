@@ -16,7 +16,7 @@
 				@domElement.id = id
 				@domElement.className = 'menu-item'
 				@domElement.innerHTML = name
-		
+
 
 		@Menu = class extends View
 			init: (id, name) ->
@@ -48,30 +48,33 @@
 			add: (child) ->
 				@children[child.id] = child
 				@domElement.listEl.appendChild child.domElement
-	
+
 	@addMenubar = (editor) ->
 		menubar = new Menubar editor
+
+		logo = new Menubar.Menu menubar, 'logo', '<span>Vis</span>board'
+
 		fileMenu = new Menubar.Menu menubar, 'file', 'File'
 		fileMenu.domElement.style.width = '50px'
 
 		new Menubar.MenuItem fileMenu, 'import', 'Import'
 		new Menubar.MenuItem fileMenu, 'export', 'Export'
 
-		dataMenu = new Menubar.Menu menubar, 'data', 'Data'
-		dataMenu.domElement.style.width = '50px'
+		dataMenu = new Menubar.Menu menubar, 'data', 'Workflow'
+		dataMenu.domElement.style.width = '70px'
 
 		newData = new Menubar.MenuItem dataMenu, 'newData', 'New data'
 		newData.domElement.addEventListener 'click', (e) ->
 			Reader.upload()
 		newFilter = new Menubar.MenuItem dataMenu, 'newFilter', 'Filter'
 		newFilter.domElement.addEventListener 'click', (e) ->
-			new Data.Filter
+			new (Data.tools().Filter)()
 		newCluster = new Menubar.MenuItem dataMenu, 'newCluster', 'Cluster'
 		newCluster.domElement.addEventListener 'click', (e) ->
-			new Data.Cluster
+			new (Data.tools().Cluster)()
 		newScale = new Menubar.MenuItem dataMenu, 'newScale', 'Scale'
 		newScale.domElement.addEventListener 'click', (e) ->
-			new Data.Scale
+			new (Data.tools().Scale)()
 
 		primitiveMenu = new Menubar.Menu menubar, 'primitive', 'Primitive'
 

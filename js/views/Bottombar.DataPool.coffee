@@ -60,7 +60,7 @@
 							return "translate(#{d.y}, #{d.x})"
 						.on 'click', (d, i) ->
 							DataPool.select @
-							DataPanel.display (Data.getNode d.name, Data.tree) if DataPanel?
+							DataPanel.display (Data.get().getNode d.name, Data.get().tree) if DataPanel?
 
 				node.append 'circle'
 					.attr 'r', 4.5
@@ -80,6 +80,6 @@
 					.text (d) ->
 						return d.name
 
-	
+
 	@Bottombar.DataPool = DataPool
 )()

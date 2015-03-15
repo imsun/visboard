@@ -51,6 +51,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       self = this;
       this.parent = 'root';
       this.id = 'UID' + Primitive.counter++;
+      Data.add(this.id);
       this.type = 'primitive';
       this.name = name || 'Primitive';
       this.data = null;
@@ -103,7 +104,8 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
                 value: null
               }
             ];
-            _ref = Data.list;
+            console.log(self.id);
+            _ref = Data.get(self.id).list;
             for (key in _ref) {
               value = _ref[key];
               result.push({
@@ -238,7 +240,9 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       delete this.data;
       delete this.prop.parent;
       delete this.prop.data;
+      Data.remove(this.id);
       this.id = 'root';
+      Data.add(this.id);
       this.type = 'root';
       return this.name = 'Root';
     };

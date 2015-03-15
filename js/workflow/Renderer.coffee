@@ -91,7 +91,7 @@
 
 
 			dataName = evalProp prop.data, null, null, null, $parent
-			data = Data.list[dataName]
+			data = Data.get(primitive.id).list[dataName]
 
 			if data
 				items = data.map (row, index) ->
@@ -102,7 +102,7 @@
 							prop.domain.value = JSON.parse prop.domain.value
 						_domain = evalProp prop.domain, row, index, null, $parent
 
-						$domain = Data.list[_domain[0]].map (row) ->
+						$domain = Data.get(primitive.id).list[_domain[0]].map (row) ->
 							return row[_domain[1]]
 					return runner row, index, $domain, $parent
 
@@ -114,7 +114,7 @@
 						prop.domain.value = JSON.parse prop.domain.value
 					_domain = evalProp prop.domain, null, null, null, $parent
 
-					$domain = Data.list[_domain[0]].map (row) ->
+					$domain = Data.get(primitive.id).list[_domain[0]].map (row) ->
 						return row[_domain[1]]
 				item = runner null, null, $domain, $parent
 				return [item]

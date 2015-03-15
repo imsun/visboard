@@ -1,27 +1,30 @@
 (function() {
-  var Reader, uploader;
+  var Reader;
   Reader = {};
-  uploader = document.createElement('input');
-  uploader.type = 'file';
-  uploader.style.display = 'none';
-  uploader.addEventListener('change', function(e) {
-    var name, reader;
-    reader = new FileReader;
-    name = this.files[0].name;
-    reader.onload = function(e) {
-      var file;
-      file = e.target.result;
-      new Data(name, Reader.parse(file));
-      if (typeof TreePanel !== "undefined" && TreePanel !== null) {
-        return TreePanel.select(TreePanel.selected);
-      }
-    };
-    return reader.readAsText(this.files[0], 'utf-8');
-  });
-  document.body.appendChild(uploader);
-  Reader._uploader = uploader;
   Reader.upload = function() {
-    return Reader._uploader.click();
+    var el;
+    el = document.createElement('input');
+    el.type = 'file';
+    el.style.display = 'none';
+    el.addEventListener('change', function(e) {
+      var name, reader;
+      reader = new FileReader;
+      name = this.files[0].name;
+      reader.onload = function(e) {
+        var file, temp;
+        file = e.target.result;
+        temp = new (Data.get())(name, Reader.parse(file));
+        console.log(temp);
+        if (typeof TreePanel !== "undefined" && TreePanel !== null) {
+          TreePanel.select(TreePanel.selected);
+        }
+        el.parentElement.removeChild(el);
+        return el = null;
+      };
+      return reader.readAsText(this.files[0], 'utf-8');
+    });
+    document.body.appendChild(el);
+    return el.click();
   };
   Reader.parse = function(data) {
     var keys, result, rows;

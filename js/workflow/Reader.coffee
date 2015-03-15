@@ -1,22 +1,25 @@
 (() ->
 	Reader = {}
 
-	uploader = document.createElement 'input'
-	uploader.type = 'file'
-	uploader.style.display = 'none'
-	uploader.addEventListener 'change', (e) ->
-		reader = new FileReader
-		name = @files[0].name
-		reader.onload = (e) ->
-			file = e.target.result
-			new Data name, (Reader.parse file)
-			TreePanel.select TreePanel.selected if TreePanel?
-		reader.readAsText @files[0], 'utf-8'
-	document.body.appendChild uploader
-	Reader._uploader = uploader
-
 	Reader.upload = () ->
-		Reader._uploader.click()
+		el = document.createElement 'input'
+		el.type = 'file'
+		el.style.display = 'none'
+		el.addEventListener 'change', (e) ->
+			reader = new FileReader
+			name = @files[0].name
+			reader.onload = (e) ->
+				file = e.target.result
+				temp = new (Data.get())(name, (Reader.parse file))
+				console.log temp
+				TreePanel.select TreePanel.selected if TreePanel?
+
+				el.parentElement.removeChild el
+				el = null
+			reader.readAsText @files[0], 'utf-8'
+
+		document.body.appendChild el
+		el.click()
 
 	Reader.parse = (data) ->
 		rows = data.replace /\n+/g, '\n'

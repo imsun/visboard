@@ -20,6 +20,8 @@
 			@selected = node
 			for listener in @selectListener
 				listener.fn.call listener.self, node
+			DataPool.display _.copy Data.get().tree if DataPool?
+			DataPanel.clear() if DataPanel?
 
 		update: (data) ->
 			@tree.update data
