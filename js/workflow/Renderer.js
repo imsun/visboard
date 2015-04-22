@@ -123,8 +123,12 @@
         Renderer.primitives[_primitive.id] = _primitive;
         return _primitive;
       };
+      Data.workflow(primitive.id).checkInput();
       dataName = evalProp(prop.data, null, null, null, $parent);
       data = Data.get(primitive.id).list[dataName];
+      if (data && _.isType(data[0], 'Array')) {
+        data = Data.get(primitive.id).list[dataName + '.' + $parent.$index];
+      }
       if (data) {
         items = data.map(function(row, index) {
           var $domain, _domain;

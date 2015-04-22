@@ -2,7 +2,7 @@
 	class PropPanel extends View
 		init: (id) ->
 			@id = id
-						
+
 			@domElement = document.createElement 'div'
 			@domElement.id = id
 			@domElement.className = 'prop-panel'

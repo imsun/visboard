@@ -86,11 +86,11 @@
 							name: 'none'
 							value: null
 						]
-						console.log self.id
-						for key, value of Data.get(self.id).list
-							result.push
-								name: key
-								value: key
+						for key, value of Data.get(self.id).members
+							if not value.hidden
+								result.push
+									name: key
+									value: key
 						return result
 					listener: (value) ->
 						self.bind value

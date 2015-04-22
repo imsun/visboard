@@ -11,10 +11,9 @@
       reader = new FileReader;
       name = this.files[0].name;
       reader.onload = function(e) {
-        var file, temp;
+        var file;
         file = e.target.result;
-        temp = new (Data.get())(name, Reader.parse(file));
-        console.log(temp);
+        new (Data.get())(name, Reader.parse(file));
         if (typeof TreePanel !== "undefined" && TreePanel !== null) {
           TreePanel.select(TreePanel.selected);
         }

@@ -10,8 +10,8 @@
 			name = @files[0].name
 			reader.onload = (e) ->
 				file = e.target.result
-				temp = new (Data.get())(name, (Reader.parse file))
-				console.log temp
+				new (Data.get())(name, (Reader.parse file))
+				
 				TreePanel.select TreePanel.selected if TreePanel?
 
 				el.parentElement.removeChild el

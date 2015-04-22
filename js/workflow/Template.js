@@ -31,17 +31,20 @@ var __hasProp = {}.hasOwnProperty,
                 value: null
               }
             ];
-            _ref = Data.list;
+            _ref = Data.get().members;
             for (key in _ref) {
               value = _ref[key];
-              result.push({
-                name: key,
-                value: key
-              });
+              if (!value.hidden) {
+                result.push({
+                  name: key,
+                  value: key
+                });
+              }
             }
             return result;
           },
           listener: function(value) {
+            Data.get().members[value].output();
             self.prop.pointData.value = value;
             self.point.bind(value);
             return Renderer.renderAll();
@@ -52,21 +55,27 @@ var __hasProp = {}.hasOwnProperty,
           type: 'select',
           value: null,
           set: function() {
-            var data, dataName, key, result, _ref;
+            var data, dataName, key, result, value, _ref;
             result = [
               {
                 name: 'none',
                 value: null
               }
             ];
-            _ref = Data.list;
+            _ref = Data.get().members;
             for (dataName in _ref) {
-              data = _ref[dataName];
-              for (key in data[0]) {
-                result.push({
-                  name: "" + dataName + "." + key,
-                  value: JSON.stringify([dataName, key])
-                });
+              value = _ref[dataName];
+              if (!value.hidden) {
+                data = value.data;
+                if (_.isType(data[0], 'Array')) {
+                  data = data[0];
+                }
+                for (key in data[0]) {
+                  result.push({
+                    name: "" + dataName + "." + key,
+                    value: JSON.stringify([dataName, key])
+                  });
+                }
               }
             }
             return result;
@@ -81,21 +90,27 @@ var __hasProp = {}.hasOwnProperty,
           type: 'select',
           value: null,
           set: function() {
-            var data, dataName, key, result, _ref;
+            var data, dataName, key, result, value, _ref;
             result = [
               {
                 name: 'none',
                 value: null
               }
             ];
-            _ref = Data.list;
+            _ref = Data.get().members;
             for (dataName in _ref) {
-              data = _ref[dataName];
-              for (key in data[0]) {
-                result.push({
-                  name: "" + dataName + "." + key,
-                  value: JSON.stringify([dataName, key])
-                });
+              value = _ref[dataName];
+              if (!value.hidden) {
+                data = value.data;
+                if (_.isType(data[0], 'Array')) {
+                  data = data[0];
+                }
+                for (key in data[0]) {
+                  result.push({
+                    name: "" + dataName + "." + key,
+                    value: JSON.stringify([dataName, key])
+                  });
+                }
               }
             }
             return result;
@@ -161,7 +176,7 @@ var __hasProp = {}.hasOwnProperty,
         if (_.isType(xDomain, 'String')) {
           xDomain = JSON.parse(xDomain);
         }
-        xColumn = Data.list[xDomain[0]].map(function(row) {
+        xColumn = Data.get().list[xDomain[0]].map(function(row) {
           var e;
           try {
             return parseFloat(row[xDomain[1]]);
@@ -204,7 +219,7 @@ var __hasProp = {}.hasOwnProperty,
         if (_.isType(yDomain, 'String')) {
           yDomain = JSON.parse(yDomain);
         }
-        yColumn = Data.list[yDomain[0]].map(function(row) {
+        yColumn = Data.get().list[yDomain[0]].map(function(row) {
           var e;
           try {
             return parseFloat(row[yDomain[1]]);

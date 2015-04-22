@@ -30,6 +30,7 @@ var __hasProp = {}.hasOwnProperty,
       }
       node.domElement.titleEl.className = 'tree-node-title selected';
       this.selected = node;
+      Data.workflow(node.target.id).checkInput();
       _ref = this.selectListener;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         listener = _ref[_i];

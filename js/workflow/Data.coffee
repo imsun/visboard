@@ -1,9 +1,19 @@
 (() ->
-	Workflow = () ->
+	Workflow = (@owner) ->
+		owner = @owner
 		wf = @
+		@outPool = outPool = {}
+		@checkInput = () ->
+			if Primitives.list[owner].prop.parent?
+				parent = Primitives.list[owner].prop.parent.value
+				inPool = Data.workflow(parent).outPool
+				for key, value of inPool
+					if not DataModel.list[key]
+						new wf.DataModel key, value.data
 		@DataModel = DataModel = class
 			@list: {}
 			@tree: []
+			@members: {}
 			@getNode: (name, trees) ->
 				for tree in trees
 					if tree.name is name
@@ -11,16 +21,32 @@
 				for tree in trees
 					result = @getNode name, tree.children
 					return result if result
-			constructor: (name, @data, parent) ->
+			output: () ->
+				outPool[@name] = @
+			constructor: (@name, @data, parent, @hidden) ->
+				self = @
+				name = @name
+				dataArrayFlag = false
+				if _.isType @data[0], 'Array'
+					dataArrayFlag = true
+					keys = Object.keys data[0][0]
+				else
+					keys = Object.keys data[0]
+
 				DataModel.list[name] = @data
+				DataModel.members[name] = @
 				dataNode =
 					name: name
 					type: 'data'
 					parent: parent
 					children: []
+					hidden: hidden
 					prop:
 						title:
-							name: 'Data'
+							name: (() ->
+								return 'Data Set' if dataArrayFlag
+								return 'Data'
+							)()
 							type: 'title'
 						name:
 							name: 'Name'
@@ -29,32 +55,39 @@
 						rows:
 							name: 'Rows'
 							type: 'label'
-							value: @data.length
+							value: (() ->
+								return self.data.length
+							)()
 						preview:
 							name: 'Preview'
 							type: 'html'
 							value: (() ->
 								data = DataModel.list[name]
-								keys = Object.keys data[0]
+
 								tr = ''
 								th = '<thead><tr><th>' + (keys.join '</th><th>') + '</th></tr></thead>'
-								data.forEach (row, i) ->
-									td = ''
-									keys.forEach (key, j) ->
-										td += "<td>#{row[key]}</td>"
-									tr += "<tr>#{td}</tr>"
+								if not dataArrayFlag
+									data.forEach (row, i) ->
+										td = ''
+										keys.forEach (key, j) ->
+											td += "<td>#{row[key]}</td>"
+										tr += "<tr>#{td}</tr>"
 								table = "<table>#{th}<tbody>#{tr}</tbody></table>"
 								return table
 							)()
-				if parent?
-					node = DataModel.getNode parent, DataModel.tree
-					node.children.push dataNode
-				else
-					DataModel.tree.push dataNode
 
-				# d3.tree() will remove `children` from tree's nodes
-				DataPool.display _.copy DataModel.tree if DataPool?
-				DataPanel.display dataNode if DataPanel?
+				if dataArrayFlag
+					@data.forEach (data, index) ->
+						new wf.DataModel name + '.' + index, data, parent, true
+				if not hidden
+					if parent?
+						node = DataModel.getNode parent, DataModel.tree
+						node.children.push dataNode
+					else
+						DataModel.tree.push dataNode
+					# d3.tree() will remove `children` from tree's nodes
+					DataPool.display _.copy DataModel.tree if DataPool?
+					DataPanel.display dataNode if DataPanel?
 				return @
 
 
@@ -128,10 +161,8 @@
 				else
 					parent = DataModel.tree
 				parent.push @dataNode
-				console.log @
 				@update()
 			init: () ->
-				console.log 'init'
 
 		# Filter and Cluster need to be reduced
 		@Filter = Filter = class extends @Tool
@@ -215,30 +246,42 @@
 			update: () ->
 				super()
 
+				self = @
 				inputName = @dataNode.prop.input.value
 				key = @dataNode.prop.key.value
 
 				if not key or not inputName
 					DataPool.display DataModel.tree
 					return
+
+				genChildren = (input) ->
+					group = {}
+					list = []
+					input.forEach (row, index) ->
+						if not group[row[key]]
+							group[row[key]] = []
+						group[row[key]].push (_.copy row)
+					keys = Object.keys group
+							.map (row) ->
+								list.push group[row]
+								temp = {}
+								temp[key] = row
+								return temp
+					# TO DO
+					# 	may exist name conflict
+					new DataModel inputName + '.' + key, keys, self.dataNode.name
+
+					# for index, item of group
+					new DataModel inputName + '.' + key + '.set', list, self.dataNode.name
+
+
 				input = DataModel.list[inputName]
+				if _.isType input[0], 'Array'
+					input.forEach (data, index) ->
+						genChildren data
+				else
+					genChildren input
 
-				group = {}
-				input.forEach (row, index) ->
-					if not group[row[key]]
-						group[row[key]] = []
-					group[row[key]].push (_.copy row)
-				keys = Object.keys group
-						.map (row) ->
-							temp = {}
-							temp[key] = row
-							return temp
-				# TO DO
-				# 	may exist name conflict
-				new DataModel inputName + '.' + key, keys, @dataNode.name
-
-				for index, item of group
-					new DataModel inputName + '.' + key + '.' + index, item, @dataNode.name
 
 		@Scale = Scale = class extends Tool
 			@counter: 0
@@ -294,13 +337,16 @@
 									value: key
 					return result
 				DataPanel.display @dataNode if DataPanel?
-		console.log @
 		return @
 
 	Data =
 		list: {}
 		add: (id) ->
-			Data.list[id] = new Workflow()
+			Data.list[id] = new Workflow(id)
+		workflow: (id) ->
+			return Data.list[id] if id?
+			return Data.list[TreePanel.selected.target.id] if TreePanel?
+			return null
 		get: (id) ->
 			return Data.list[id].DataModel if id?
 			return Data.list[TreePanel.selected.target.id].DataModel if TreePanel?
@@ -308,6 +354,10 @@
 		tools: (id) ->
 			return Data.list[id] if id?
 			return Data.list[TreePanel.selected.target.id] if TreePanel?
+			return null
+		outPool: (id) ->
+			return Data.list[id].outPool if id?
+			return Data.list[TreePanel.selected.target.id].outPool if TreePanel?
 			return null
 		remove: (id) ->
 			delete Data.list[id]

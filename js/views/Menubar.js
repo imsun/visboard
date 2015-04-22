@@ -85,7 +85,7 @@ var __hasProp = {}.hasOwnProperty,
   this.addMenubar = function(editor) {
     var axis, circle, coordinate, dataMenu, fileMenu, logo, menubar, newCluster, newData, newFilter, newScale, primitiveMenu, scatterPlot, templateMenu;
     menubar = new Menubar(editor);
-    logo = new Menubar.Menu(menubar, 'logo', '<span>Vis</span>board');
+    logo = new Menubar.Menu(menubar, 'logo', '<span>Vis</span>Composer');
     fileMenu = new Menubar.Menu(menubar, 'file', 'File');
     fileMenu.domElement.style.width = '50px';
     new Menubar.MenuItem(fileMenu, 'import', 'Import');

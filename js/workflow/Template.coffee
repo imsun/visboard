@@ -22,12 +22,14 @@
 							name: 'none'
 							value: null
 						]
-						for key, value of Data.list
-							result.push
-								name: key
-								value: key
+						for key, value of Data.get().members
+							if not value.hidden
+								result.push
+									name: key
+									value: key
 						return result
 					listener: (value) ->
+						Data.get().members[value].output()
 						self.prop.pointData.value = value
 						self.point.bind value
 						Renderer.renderAll()
@@ -45,11 +47,15 @@
 							name: 'none'
 							value: null
 						]
-						for dataName, data of Data.list
-							for key of data[0]
-								result.push
-									name: "#{dataName}.#{key}"
-									value: JSON.stringify [dataName, key]
+						for dataName, value of Data.get().members
+							if not value.hidden
+								data = value.data
+								if _.isType data[0], 'Array'
+									data = data[0]
+								for key of data[0]
+									result.push
+										name: "#{dataName}.#{key}"
+										value: JSON.stringify [dataName, key]
 						return result
 					listener: (value) ->
 						self.setXAxis value
@@ -63,11 +69,15 @@
 							name: 'none'
 							value: null
 						]
-						for dataName, data of Data.list
-							for key of data[0]
-								result.push
-									name: "#{dataName}.#{key}"
-									value: JSON.stringify [dataName, key]
+						for dataName, value of Data.get().members
+							if not value.hidden
+								data = value.data
+								if _.isType data[0], 'Array'
+									data = data[0]
+								for key of data[0]
+									result.push
+										name: "#{dataName}.#{key}"
+										value: JSON.stringify [dataName, key]
 						return result
 					listener: (value) ->
 						self.setYAxis value
@@ -118,7 +128,7 @@
 				if _.isType xDomain, 'String'
 					xDomain = JSON.parse xDomain
 
-				xColumn = Data.list[xDomain[0]].map (row) ->
+				xColumn = Data.get().list[xDomain[0]].map (row) ->
 					try
 						return parseFloat(row[xDomain[1]])
 					catch e
@@ -149,7 +159,7 @@
 				if _.isType yDomain, 'String'
 					yDomain = JSON.parse yDomain
 
-				yColumn = Data.list[yDomain[0]].map (row) ->
+				yColumn = Data.get().list[yDomain[0]].map (row) ->
 					try
 						return parseFloat(row[yDomain[1]])
 					catch e

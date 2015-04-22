@@ -104,14 +104,15 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
                 value: null
               }
             ];
-            console.log(self.id);
-            _ref = Data.get(self.id).list;
+            _ref = Data.get(self.id).members;
             for (key in _ref) {
               value = _ref[key];
-              result.push({
-                name: key,
-                value: key
-              });
+              if (!value.hidden) {
+                result.push({
+                  name: key,
+                  value: key
+                });
+              }
             }
             return result;
           },

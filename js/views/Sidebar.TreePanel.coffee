@@ -18,8 +18,11 @@
 			@selected.domElement.titleEl.className = 'tree-node-title' if @selected?
 			node.domElement.titleEl.className = 'tree-node-title selected'
 			@selected = node
+
+			Data.workflow(node.target.id).checkInput()
 			for listener in @selectListener
 				listener.fn.call listener.self, node
+
 			DataPool.display _.copy Data.get().tree if DataPool?
 			DataPanel.clear() if DataPanel?
 

@@ -3,13 +3,35 @@ var __hasProp = {}.hasOwnProperty,
 
 (function() {
   var Data, Workflow;
-  Workflow = function() {
-    var Cluster, DataModel, Filter, Scale, Tool, wf;
+  Workflow = function(owner) {
+    var Cluster, DataModel, Filter, Scale, Tool, outPool, wf;
+    this.owner = owner;
+    owner = this.owner;
     wf = this;
+    this.outPool = outPool = {};
+    this.checkInput = function() {
+      var inPool, key, parent, value, _results;
+      if (Primitives.list[owner].prop.parent != null) {
+        parent = Primitives.list[owner].prop.parent.value;
+        inPool = Data.workflow(parent).outPool;
+        _results = [];
+        for (key in inPool) {
+          value = inPool[key];
+          if (!DataModel.list[key]) {
+            _results.push(new wf.DataModel(key, value.data));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      }
+    };
     this.DataModel = DataModel = (function() {
       _Class.list = {};
 
       _Class.tree = [];
+
+      _Class.members = {};
 
       _Class.getNode = function(name, trees) {
         var result, tree, _i, _j, _len, _len1;
@@ -28,18 +50,40 @@ var __hasProp = {}.hasOwnProperty,
         }
       };
 
-      function _Class(name, data, parent) {
-        var dataNode, node;
+      _Class.prototype.output = function() {
+        return outPool[this.name] = this;
+      };
+
+      function _Class(name, data, parent, hidden) {
+        var dataArrayFlag, dataNode, keys, node, self;
+        this.name = name;
         this.data = data;
+        this.hidden = hidden;
+        self = this;
+        name = this.name;
+        dataArrayFlag = false;
+        if (_.isType(this.data[0], 'Array')) {
+          dataArrayFlag = true;
+          keys = Object.keys(data[0][0]);
+        } else {
+          keys = Object.keys(data[0]);
+        }
         DataModel.list[name] = this.data;
+        DataModel.members[name] = this;
         dataNode = {
           name: name,
           type: 'data',
           parent: parent,
           children: [],
+          hidden: hidden,
           prop: {
             title: {
-              name: 'Data',
+              name: (function() {
+                if (dataArrayFlag) {
+                  return 'Data Set';
+                }
+                return 'Data';
+              })(),
               type: 'title'
             },
             name: {
@@ -50,42 +94,52 @@ var __hasProp = {}.hasOwnProperty,
             rows: {
               name: 'Rows',
               type: 'label',
-              value: this.data.length
+              value: (function() {
+                return self.data.length;
+              })()
             },
             preview: {
               name: 'Preview',
               type: 'html',
               value: (function() {
-                var keys, table, th, tr;
+                var table, th, tr;
                 data = DataModel.list[name];
-                keys = Object.keys(data[0]);
                 tr = '';
                 th = '<thead><tr><th>' + (keys.join('</th><th>')) + '</th></tr></thead>';
-                data.forEach(function(row, i) {
-                  var td;
-                  td = '';
-                  keys.forEach(function(key, j) {
-                    return td += "<td>" + row[key] + "</td>";
+                if (!dataArrayFlag) {
+                  data.forEach(function(row, i) {
+                    var td;
+                    td = '';
+                    keys.forEach(function(key, j) {
+                      return td += "<td>" + row[key] + "</td>";
+                    });
+                    return tr += "<tr>" + td + "</tr>";
                   });
-                  return tr += "<tr>" + td + "</tr>";
-                });
+                }
                 table = "<table>" + th + "<tbody>" + tr + "</tbody></table>";
                 return table;
               })()
             }
           }
         };
-        if (parent != null) {
-          node = DataModel.getNode(parent, DataModel.tree);
-          node.children.push(dataNode);
-        } else {
-          DataModel.tree.push(dataNode);
+        if (dataArrayFlag) {
+          this.data.forEach(function(data, index) {
+            return new wf.DataModel(name + '.' + index, data, parent, true);
+          });
         }
-        if (typeof DataPool !== "undefined" && DataPool !== null) {
-          DataPool.display(_.copy(DataModel.tree));
-        }
-        if (typeof DataPanel !== "undefined" && DataPanel !== null) {
-          DataPanel.display(dataNode);
+        if (!hidden) {
+          if (parent != null) {
+            node = DataModel.getNode(parent, DataModel.tree);
+            node.children.push(dataNode);
+          } else {
+            DataModel.tree.push(dataNode);
+          }
+          if (typeof DataPool !== "undefined" && DataPool !== null) {
+            DataPool.display(_.copy(DataModel.tree));
+          }
+          if (typeof DataPanel !== "undefined" && DataPanel !== null) {
+            DataPanel.display(dataNode);
+          }
         }
         return this;
       }
@@ -191,13 +245,10 @@ var __hasProp = {}.hasOwnProperty,
           parent = DataModel.tree;
         }
         parent.push(this.dataNode);
-        console.log(this);
         return this.update();
       };
 
-      _Class.prototype.init = function() {
-        return console.log('init');
-      };
+      _Class.prototype.init = function() {};
 
       return _Class;
 
@@ -319,35 +370,43 @@ var __hasProp = {}.hasOwnProperty,
       };
 
       _Class.prototype.update = function() {
-        var group, index, input, inputName, item, key, keys, _results;
+        var genChildren, input, inputName, key, self;
         _Class.__super__.update.call(this);
+        self = this;
         inputName = this.dataNode.prop.input.value;
         key = this.dataNode.prop.key.value;
         if (!key || !inputName) {
           DataPool.display(DataModel.tree);
           return;
         }
+        genChildren = function(input) {
+          var group, keys, list;
+          group = {};
+          list = [];
+          input.forEach(function(row, index) {
+            if (!group[row[key]]) {
+              group[row[key]] = [];
+            }
+            return group[row[key]].push(_.copy(row));
+          });
+          keys = Object.keys(group).map(function(row) {
+            var temp;
+            list.push(group[row]);
+            temp = {};
+            temp[key] = row;
+            return temp;
+          });
+          new DataModel(inputName + '.' + key, keys, self.dataNode.name);
+          return new DataModel(inputName + '.' + key + '.set', list, self.dataNode.name);
+        };
         input = DataModel.list[inputName];
-        group = {};
-        input.forEach(function(row, index) {
-          if (!group[row[key]]) {
-            group[row[key]] = [];
-          }
-          return group[row[key]].push(_.copy(row));
-        });
-        keys = Object.keys(group).map(function(row) {
-          var temp;
-          temp = {};
-          temp[key] = row;
-          return temp;
-        });
-        new DataModel(inputName + '.' + key, keys, this.dataNode.name);
-        _results = [];
-        for (index in group) {
-          item = group[index];
-          _results.push(new DataModel(inputName + '.' + key + '.' + index, item, this.dataNode.name));
+        if (_.isType(input[0], 'Array')) {
+          return input.forEach(function(data, index) {
+            return genChildren(data);
+          });
+        } else {
+          return genChildren(input);
         }
-        return _results;
       };
 
       return _Class;
@@ -447,13 +506,21 @@ var __hasProp = {}.hasOwnProperty,
       return _Class;
 
     })(Tool);
-    console.log(this);
     return this;
   };
   Data = {
     list: {},
     add: function(id) {
-      return Data.list[id] = new Workflow();
+      return Data.list[id] = new Workflow(id);
+    },
+    workflow: function(id) {
+      if (id != null) {
+        return Data.list[id];
+      }
+      if (typeof TreePanel !== "undefined" && TreePanel !== null) {
+        return Data.list[TreePanel.selected.target.id];
+      }
+      return null;
     },
     get: function(id) {
       if (id != null) {
@@ -470,6 +537,15 @@ var __hasProp = {}.hasOwnProperty,
       }
       if (typeof TreePanel !== "undefined" && TreePanel !== null) {
         return Data.list[TreePanel.selected.target.id];
+      }
+      return null;
+    },
+    outPool: function(id) {
+      if (id != null) {
+        return Data.list[id].outPool;
+      }
+      if (typeof TreePanel !== "undefined" && TreePanel !== null) {
+        return Data.list[TreePanel.selected.target.id].outPool;
       }
       return null;
     },
